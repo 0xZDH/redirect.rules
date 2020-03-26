@@ -472,6 +472,42 @@ WORKINGFILE.write(REWRITE_RULE)
 
 
 #> -----------------------------------------------------------------------------
+# Add Oracle Cloud IPs: https://docs.cloud.oracle.com/en-us/iaas/tools/public_ip_ranges.json
+print("[*]\tPulling Oracle Cloud IP list...")
+WORKINGFILE.write("\n\n\t# Adding Oracle Cloud IP space: %s\n" % datetime.now().strftime("%Y%m%d-%H:%M:%S"))
+
+oracle_networks = requests.get(
+    'https://docs.cloud.oracle.com/en-us/iaas/tools/public_ip_ranges.json',
+    headers=HTTP_HEADERS,
+    timeout=TIMEOUT,
+    verify=False
+).json()
+
+count = 0
+for region in oracle_networks['regions']:
+    WORKINGFILE.write("\n\t# Oracle Cloud Region: %s\n" % region['region'])
+    for cidr in region['cidrs']:
+        ip = cidr['cidr']
+        # Remove 31/32 CIDR's
+        ip = re.sub('/3[12]', '', ip)
+        # Turn lower-end CIDRs into /24 by default
+        ip = re.sub('\.[0-9]{1,3}/(2[456789]|30)', '.0/24', ip)
+
+        # Check if the current IP/CIDR has been seen
+        if ip not in full_ip_list:
+            WORKINGFILE.write(REWRITE_COND_IP.format(IP=ip))
+            full_ip_list.append(ip)  # Keep track of all things added
+            count += 1
+
+WORKINGFILE.write("\t# Oracle Cloud IP Count:   %d\n" % count_ip)
+
+# Add rewrite rule... I think this should help performance
+WORKINGFILE.write("\n\t# Add RewriteRule for performance\n")
+WORKINGFILE.write(REWRITE_END_COND)
+WORKINGFILE.write(REWRITE_RULE)
+
+
+#> -----------------------------------------------------------------------------
 # Add companies by ASN - via whois.radb.net
 for asn in ASNS:
     asn = asn.split('_')

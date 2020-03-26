@@ -13,7 +13,7 @@ usage: redirect_rules.py [REDIRECT_DOMAIN]
 ```
 
 ```
-$ python3 -i redirect_rules.py example.com
+$ python3 redirect_rules.py examplee.com                     
 
 ----------------------------------
   Redirect Rules Generation Tool
@@ -29,6 +29,7 @@ $ python3 -i redirect_rules.py example.com
 [*]     Pulling Google Cloud IP/network list...
 [*]     Pulling Microsoft Azure IP/network list...
 [*]     Pulling Office 365 IP list...
+[*]     Pulling Oracle Cloud IP list...
 [*]     Pulling AS46484 -- McAfee via RADB...
 ...
 [*]     Pulling AS13448 -- ForcePoint via BGPView...
@@ -37,10 +38,10 @@ $ python3 -i redirect_rules.py example.com
 [*]     Performing rule de-duplication clean up...
 [*]     Removing 409 duplicate IPs/Networks...
 
-[*]     Total IPs, Networks or User-Agents blocked: 9168
+[*]     Total IPs, Networks or User-Agents blocked: 9353
 [*]     Redirect rules file: /tmp/redirect.rules
 
-redirect_rules.py executed in 62.42 seconds.
+redirect_rules.py executed in 92.93 seconds.
 ```
 
 > All static data is stored within the data/ directory in .py files as Python objects. If you need to remove an ASN/User-Agent/IP/etc. from a static list, open the corresponding Python file and comment out what you no longer require. If you need to add anything, follow the :format: at the top of the Python data file (if present).
