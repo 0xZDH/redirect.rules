@@ -112,7 +112,7 @@ print('''
   Redirect Rules Generation Tool
                v{VERS}
 ----------------------------------
-''').format(VERS=__version__)
+'''.format(VERS=__version__))
 
 
 
