@@ -2,7 +2,7 @@
 
 #> -----------------------------------------------------------------------------
 
-#   Quick and dirty redirect.rules dynamic generator
+#   Quick and dirty dynamic redirect.rules generator
 
 #   This is a Python rewrite and expansion of:
 #    - https://gist.github.com/curi0usJack/971385e8334e189d93a6cb4671238b10
@@ -48,7 +48,7 @@ if len(sys.argv) < 2:
 #   CONFIGURATION
 # =================
 
-__version__ = '1.0'
+__version__ = '1.1'
 
 ## Start timer
 start = time.perf_counter()
@@ -127,10 +127,10 @@ WORKINGFILE.write("\t#\n\n")
 #> -----------------------------------------------------------------------------
 # Grab @curi0usJack's .htaccess rules: https://gist.github.com/curi0usJack/971385e8334e189d93a6cb4671238b10
 # Primary data source
-# Current raw link as of: March 5, 2020
+# Current raw link as of: March 27, 2020
 print("[*]\tPulling @curi0usJack's redirect rules...")
 curious_jack_file = requests.get(
-    'https://gist.githubusercontent.com/curi0usJack/971385e8334e189d93a6cb4671238b10/raw/a311136310fc8e9f5b70c71e09274e20881bccaf/.htaccess',
+    'https://gist.githubusercontent.com/curi0usJack/971385e8334e189d93a6cb4671238b10/raw/13b11edf67f746bdd940ff3f2e9b8dc18f8ad7d4/.htaccess',
     headers=HTTP_HEADERS,
     timeout=TIMEOUT,
     verify=False
@@ -196,10 +196,12 @@ for source in AGENTS.keys():
 
 WORKINGFILE.write("\t# Bad User Agent Count: %d\n" % count)
 
-# Add rewrite rule... I think this should help performance
-WORKINGFILE.write("\n\t# Add RewriteRule for performance\n")
-WORKINGFILE.write(REWRITE_END_COND)
-WORKINGFILE.write(REWRITE_RULE)
+# Ensure there are conditions to catch
+if count > 0:
+    # Add rewrite rule... I think this should help performance
+    WORKINGFILE.write("\n\t# Add RewriteRule for performance\n")
+    WORKINGFILE.write(REWRITE_END_COND)
+    WORKINGFILE.write(REWRITE_RULE)
 
 
 #> -----------------------------------------------------------------------------
@@ -220,9 +222,12 @@ WORKINGFILE.write("\t# Hostname Count: %d\n" % count)
 WORKINGFILE.write("\n\t# IPs\n")
 count = 0
 for ip in MK_IPS:
-    # Remove 31/32 CIDR's
+    # Convert /31 and /32 CIDRs to single IP
     ip = re.sub('/3[12]', '', ip)
-    # Turn lower-end CIDRs into /24 by default
+
+    # Convert lower-bound CIDRs into /24 by default
+    # This is assmuming that if a portion of the net
+    # was seen, we want to avoid the full netblock
     ip = re.sub('\.[0-9]{1,3}/(2[456789]|30)', '.0/24', ip)
 
     # Check if the current IP/CIDR has been seen
@@ -233,10 +238,12 @@ for ip in MK_IPS:
 
 WORKINGFILE.write("\t# IP Count: %d\n" % count)
 
-# Add rewrite rule... I think this should help performance
-WORKINGFILE.write("\n\t# Add RewriteRule for performance\n")
-WORKINGFILE.write(REWRITE_END_COND)
-WORKINGFILE.write(REWRITE_RULE)
+# Ensure there are conditions to catch
+if count > 0:
+    # Add rewrite rule... I think this should help performance
+    WORKINGFILE.write("\n\t# Add RewriteRule for performance\n")
+    WORKINGFILE.write(REWRITE_END_COND)
+    WORKINGFILE.write(REWRITE_RULE)
 
 
 #> -----------------------------------------------------------------------------
@@ -257,9 +264,12 @@ for line in tor_ips:
     line = line.strip()
     if 'ExitAddress' in line:
         ip = line.split(' ')[1]
-        # Remove 31/32 CIDR's
+        # Convert /31 and /32 CIDRs to single IP
         ip = re.sub('/3[12]', '', ip)
-        # Turn lower-end CIDRs into /24 by default
+
+        # Convert lower-bound CIDRs into /24 by default
+        # This is assmuming that if a portion of the net
+        # was seen, we want to avoid the full netblock
         ip = re.sub('\.[0-9]{1,3}/(2[456789]|30)', '.0/24', ip)
 
         # Check if the current IP/CIDR has been seen
@@ -270,10 +280,12 @@ for line in tor_ips:
 
 WORKINGFILE.write("\t# Tor Exit Node Count: %d\n" % count)
 
-# Add rewrite rule... I think this should help performance
-WORKINGFILE.write("\n\t# Add RewriteRule for performance\n")
-WORKINGFILE.write(REWRITE_END_COND)
-WORKINGFILE.write(REWRITE_RULE)
+# Ensure there are conditions to catch
+if count > 0:
+    # Add rewrite rule... I think this should help performance
+    WORKINGFILE.write("\n\t# Add RewriteRule for performance\n")
+    WORKINGFILE.write(REWRITE_END_COND)
+    WORKINGFILE.write(REWRITE_RULE)
 
 
 #> -----------------------------------------------------------------------------
@@ -291,9 +303,12 @@ aws_ips = requests.get(
 count = 0
 for network in aws_ips['prefixes']:
     ip = network['ip_prefix']
-    # Remove 31/32 CIDR's
+    # Convert /31 and /32 CIDRs to single IP
     ip = re.sub('/3[12]', '', ip)
-    # Turn lower-end CIDRs into /24 by default
+
+    # Convert lower-bound CIDRs into /24 by default
+    # This is assmuming that if a portion of the net
+    # was seen, we want to avoid the full netblock
     ip = re.sub('\.[0-9]{1,3}/(2[456789]|30)', '.0/24', ip)
 
     # Check if the current IP/CIDR has been seen
@@ -304,10 +319,12 @@ for network in aws_ips['prefixes']:
 
 WORKINGFILE.write("\t# AWS IP Count: %d\n" % count)
 
-# Add rewrite rule... I think this should help performance
-WORKINGFILE.write("\n\t# Add RewriteRule for performance\n")
-WORKINGFILE.write(REWRITE_END_COND)
-WORKINGFILE.write(REWRITE_RULE)
+# Ensure there are conditions to catch
+if count > 0:
+    # Add rewrite rule... I think this should help performance
+    WORKINGFILE.write("\n\t# Add RewriteRule for performance\n")
+    WORKINGFILE.write(REWRITE_END_COND)
+    WORKINGFILE.write(REWRITE_RULE)
 
 
 #> -----------------------------------------------------------------------------
@@ -341,9 +358,12 @@ for netblock in netblocks:
     for netblock_ip in netblock_ips.split(' '):
         if 'ip4' in netblock_ip:
             ip = netblock_ip.split(':')[-1]
-            # Remove 31/32 CIDR's
+            # Convert /31 and /32 CIDRs to single IP
             ip = re.sub('/3[12]', '', ip)
-            # Turn lower-end CIDRs into /24 by default
+
+            # Convert lower-bound CIDRs into /24 by default
+            # This is assmuming that if a portion of the net
+            # was seen, we want to avoid the full netblock
             ip = re.sub('\.[0-9]{1,3}/(2[456789]|30)', '.0/24', ip)
 
             # Check if the current IP/CIDR has been seen
@@ -354,10 +374,12 @@ for netblock in netblocks:
 
 WORKINGFILE.write("\t# GoogleCloud IP Count: %d\n" % count)
 
-# Add rewrite rule... I think this should help performance
-WORKINGFILE.write("\n\t# Add RewriteRule for performance\n")
-WORKINGFILE.write(REWRITE_END_COND)
-WORKINGFILE.write(REWRITE_RULE)
+# Ensure there are conditions to catch
+if count > 0:
+    # Add rewrite rule... I think this should help performance
+    WORKINGFILE.write("\n\t# Add RewriteRule for performance\n")
+    WORKINGFILE.write(REWRITE_END_COND)
+    WORKINGFILE.write(REWRITE_RULE)
 
 
 #> -----------------------------------------------------------------------------
@@ -390,9 +412,12 @@ count = 0
 for subnet in azure_subnets:
     if 'IpRange Subnet' in subnet:
         ip = re.search('"(.+?)"', subnet.strip()).group(1)
-        # Remove 31/32 CIDR's
+        # Convert /31 and /32 CIDRs to single IP
         ip = re.sub('/3[12]', '', ip)
-        # Turn lower-end CIDRs into /24 by default
+
+        # Convert lower-bound CIDRs into /24 by default
+        # This is assmuming that if a portion of the net
+        # was seen, we want to avoid the full netblock
         ip = re.sub('\.[0-9]{1,3}/(2[456789]|30)', '.0/24', ip)
 
         # Check if the current IP/CIDR has been seen
@@ -403,10 +428,12 @@ for subnet in azure_subnets:
 
 WORKINGFILE.write("\t# Microsoft Azure IP Count: %d\n" % count)
 
-# Add rewrite rule... I think this should help performance
-WORKINGFILE.write("\n\t# Add RewriteRule for performance\n")
-WORKINGFILE.write(REWRITE_END_COND)
-WORKINGFILE.write(REWRITE_RULE)
+# Ensure there are conditions to catch
+if count > 0:
+    # Add rewrite rule... I think this should help performance
+    WORKINGFILE.write("\n\t# Add RewriteRule for performance\n")
+    WORKINGFILE.write(REWRITE_END_COND)
+    WORKINGFILE.write(REWRITE_RULE)
 
 
 #> -----------------------------------------------------------------------------
@@ -451,9 +478,12 @@ for network in o365_networks:
         if 'ips' in network.keys():
             for ip in network['ips']:
                 if ':' not in ip:  # Ignore v6
-                    # Remove 31/32 CIDR's
+                    # Convert /31 and /32 CIDRs to single IP
                     ip = re.sub('/3[12]', '', ip)
-                    # Turn lower-end CIDRs into /24 by default
+
+                    # Convert lower-bound CIDRs into /24 by default
+                    # This is assmuming that if a portion of the net
+                    # was seen, we want to avoid the full netblock
                     ip = re.sub('\.[0-9]{1,3}/(2[456789]|30)', '.0/24', ip)
 
                     # Check if the current IP/CIDR has been seen
@@ -465,10 +495,12 @@ for network in o365_networks:
 WORKINGFILE.write("\t# Office 365 Host Count: %d\n" % count_host)
 WORKINGFILE.write("\t# Office 365 IP Count:   %d\n" % count_ip)
 
-# Add rewrite rule... I think this should help performance
-WORKINGFILE.write("\n\t# Add RewriteRule for performance\n")
-WORKINGFILE.write(REWRITE_END_COND)
-WORKINGFILE.write(REWRITE_RULE)
+# Ensure there are conditions to catch
+if count_ip > 0 or count_host > 0:
+    # Add rewrite rule... I think this should help performance
+    WORKINGFILE.write("\n\t# Add RewriteRule for performance\n")
+    WORKINGFILE.write(REWRITE_END_COND)
+    WORKINGFILE.write(REWRITE_RULE)
 
 
 #> -----------------------------------------------------------------------------
@@ -488,9 +520,12 @@ for region in oracle_networks['regions']:
     WORKINGFILE.write("\n\t# Oracle Cloud Region: %s\n" % region['region'])
     for cidr in region['cidrs']:
         ip = cidr['cidr']
-        # Remove 31/32 CIDR's
+        # Convert /31 and /32 CIDRs to single IP
         ip = re.sub('/3[12]', '', ip)
-        # Turn lower-end CIDRs into /24 by default
+
+        # Convert lower-bound CIDRs into /24 by default
+        # This is assmuming that if a portion of the net
+        # was seen, we want to avoid the full netblock
         ip = re.sub('\.[0-9]{1,3}/(2[456789]|30)', '.0/24', ip)
 
         # Check if the current IP/CIDR has been seen
@@ -499,12 +534,14 @@ for region in oracle_networks['regions']:
             full_ip_list.append(ip)  # Keep track of all things added
             count += 1
 
-WORKINGFILE.write("\t# Oracle Cloud IP Count:   %d\n" % count_ip)
+WORKINGFILE.write("\t# Oracle Cloud IP Count:   %d\n" % count)
 
-# Add rewrite rule... I think this should help performance
-WORKINGFILE.write("\n\t# Add RewriteRule for performance\n")
-WORKINGFILE.write(REWRITE_END_COND)
-WORKINGFILE.write(REWRITE_RULE)
+# Ensure there are conditions to catch
+if count > 0:
+    # Add rewrite rule... I think this should help performance
+    WORKINGFILE.write("\n\t# Add RewriteRule for performance\n")
+    WORKINGFILE.write(REWRITE_END_COND)
+    WORKINGFILE.write(REWRITE_RULE)
 
 
 #> -----------------------------------------------------------------------------
@@ -525,9 +562,12 @@ for asn in ASNS:
 
     count = 0
     for ip in whois_data.split('\n'):
-        # Remove 31/32 CIDR's
+        # Convert /31 and /32 CIDRs to single IP
         ip = re.sub('/3[12]', '', ip)
-        # Turn lower-end CIDRs into /24 by default
+
+        # Convert lower-bound CIDRs into /24 by default
+        # This is assmuming that if a portion of the net
+        # was seen, we want to avoid the full netblock
         ip = re.sub('\.[0-9]{1,3}/(2[456789]|30)', '.0/24', ip)
 
         # Check if the current IP/CIDR has been seen
@@ -538,10 +578,12 @@ for asn in ASNS:
 
     WORKINGFILE.write("\t# %s - %s Count: %d\n" % (asn[0], asn[1], count))
 
-    # Add rewrite rule... I think this should help performance
-    WORKINGFILE.write("\n\t# Add RewriteRule for performance\n")
-    WORKINGFILE.write(REWRITE_END_COND)
-    WORKINGFILE.write(REWRITE_RULE)
+    # Ensure there are conditions to catch
+    if count > 0:
+        # Add rewrite rule... I think this should help performance
+        WORKINGFILE.write("\n\t# Add RewriteRule for performance\n")
+        WORKINGFILE.write(REWRITE_END_COND)
+        WORKINGFILE.write(REWRITE_RULE)
 
 
 #> -----------------------------------------------------------------------------
@@ -566,9 +608,12 @@ for asn in ASNS:
         count = 0
         for network in asn_data['data']['ipv4_prefixes']:
             ip = network['prefix']
-            # Remove 31/32 CIDR's
+            # Convert /31 and /32 CIDRs to single IP
             ip = re.sub('/3[12]', '', ip)
-            # Turn lower-end CIDRs into /24 by default
+
+            # Convert lower-bound CIDRs into /24 by default
+            # This is assmuming that if a portion of the net
+            # was seen, we want to avoid the full netblock
             ip = re.sub('\.[0-9]{1,3}/(2[456789]|30)', '.0/24', ip)
 
             # Check if the current IP/CIDR has been seen
@@ -582,10 +627,12 @@ for asn in ASNS:
 
     WORKINGFILE.write("\t# %s - %s Count: %d\n" % (asn[0], asn[1], count))
 
-    # Add rewrite rule... I think this should help performance
-    WORKINGFILE.write("\n\t# Add RewriteRule for performance\n")
-    WORKINGFILE.write(REWRITE_END_COND)
-    WORKINGFILE.write(REWRITE_RULE)
+    # Ensure there are conditions to catch
+    if count > 0:
+        # Add rewrite rule... I think this should help performance
+        WORKINGFILE.write("\n\t# Add RewriteRule for performance\n")
+        WORKINGFILE.write(REWRITE_END_COND)
+        WORKINGFILE.write(REWRITE_RULE)
 
 
 #> -----------------------------------------------------------------------------
@@ -597,9 +644,12 @@ count = 0
 for obj in MISC:
     obj = obj.split('-')
     ip  = obj[0]
-    # Remove 31/32 CIDR's
+    # Convert /31 and /32 CIDRs to single IP
     ip = re.sub('/3[12]', '', ip)
-    # Turn lower-end CIDRs into /24 by default
+
+    # Convert lower-bound CIDRs into /24 by default
+    # This is assmuming that if a portion of the net
+    # was seen, we want to avoid the full netblock
     ip = re.sub('\.[0-9]{1,3}/(2[456789]|30)', '.0/24', ip)
 
     # Check if the current IP/CIDR has been seen
@@ -610,10 +660,12 @@ for obj in MISC:
 
 WORKINGFILE.write("\t# Misc IP Count: %d\n" % count)
 
-# Add rewrite rule... I think this should help performance
-WORKINGFILE.write("\n\t# Add RewriteRule for performance\n")
-WORKINGFILE.write(REWRITE_END_COND)
-WORKINGFILE.write(REWRITE_RULE)
+# Ensure there are conditions to catch
+if count > 0:
+    # Add rewrite rule... I think this should help performance
+    WORKINGFILE.write("\n\t# Add RewriteRule for performance\n")
+    WORKINGFILE.write(REWRITE_END_COND)
+    WORKINGFILE.write(REWRITE_RULE)
 
 
 #> -----------------------------------------------------------------------------

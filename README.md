@@ -1,4 +1,4 @@
-# redirect_rules
+# redirect.rules
 Redirect Rules Generation Tool.
 
 This is a Python rewrite and expansion of:
@@ -13,11 +13,11 @@ usage: redirect_rules.py [REDIRECT_DOMAIN]
 ```
 
 ```
-$ python3 redirect_rules.py examplee.com                     
+> python3 redirect_rules.py examplee.com                     
 
 ----------------------------------
   Redirect Rules Generation Tool
-               v1.0
+               v1.1
 ----------------------------------
 
 [*]     Pulling @curi0usJack's redirect rules...
@@ -56,6 +56,7 @@ pip3 install -r requirements.txt
 **violentlydave** - [mkhtaccess_red](https://github.com/violentlydave/mkhtaccess_red/)
 
 #### TODO
+* Reorder groups by most likely to be seen
 * Sort IPs/Hosts/Agents in each grouping
-* Build an index at top of redirect.rules based on starting line number of each grouping
+* Build an index at the top of redirect.rules based on starting line number of each grouping
 * Custmoize rewrite rule(s) to redirect differently based on user-agent
