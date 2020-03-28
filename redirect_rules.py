@@ -76,7 +76,7 @@ if __name__ == '__main__':
         nargs='+',
         help='Pass in one or more data sources and/or specific IP/Host/User-Agent\'s to exclude. ' +
         'Run the `--exclude-list` command to list all data source keywords that can be used. ' +
-        'Keywords and explicity strings are space delimited. ' +
+        'Keywords and explicit strings should be space delimited. ' +
         'Example Usage: --exclude agents radb 35.0.0.0/8'
     )
     parser.add_argument('--exclude-file', type=str, help='File containing items/group keywords to exclude (line separated).')

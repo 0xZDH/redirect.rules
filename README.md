@@ -24,8 +24,8 @@ optional arguments:
                         Pass in one or more data sources and/or specific
                         IP/Host/User-Agent's to exclude. Run the `--exclude-
                         list` command to list all data source keywords that
-                        can be used. Keywords and explicity strings are space
-                        delimited. Example Usage: --exclude agents radb
+                        can be used. Keywords and explicit strings should be
+                        space delimited. Example Usage: --exclude agents radb
                         35.0.0.0/8
   --exclude-file EXCLUDE_FILE
                         File containing items/group keywords to exclude (line
