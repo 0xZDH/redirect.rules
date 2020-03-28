@@ -10,7 +10,8 @@ This tool dynamically generates a redirect.rules file that will redirect Sandbox
 ### Usage
 ```
 usage: redirect_rules.py [-h] (-d DOMAIN | --exclude-list)
-                         [--exclude EXCLUDE [EXCLUDE ...]] [--verbose]
+                         [--exclude EXCLUDE [EXCLUDE ...]]
+                         [--exclude-file EXCLUDE_FILE] [--verbose]
 
 Dynamically generate redirect.rules file -- v1.2
 
@@ -20,8 +21,15 @@ optional arguments:
                         Destination URL for redirects.
   --exclude-list        List all possible exclusions.
   --exclude EXCLUDE [EXCLUDE ...]
-                        Pass in one or more IP/Host/User-Agent groups to
-                        exclude.
+                        Pass in one or more data sources and/or specific
+                        IP/Host/User-Agent's to exclude. Run the `--exclude-
+                        list` command to list all data source keywords that
+                        can be used. Keywords and explicity strings are space
+                        delimited. Example Usage: --exclude agents radb
+                        35.0.0.0/8
+  --exclude-file EXCLUDE_FILE
+                        File containing items/group keywords to exclude (line
+                        separated).
   --verbose             Enable verbose output.
 ```
 
@@ -60,7 +68,7 @@ redirect_rules.py executed in 59.55 seconds.
 
 Example exclusion usage - Exclude Google Cloud and Microsoft Azure:
 ```
-> python3 redirect_rules.py -d test.com --exclude google azure
+> python3 redirect_rules.py -d test.com --exclude google azure 35.0.0.0/8
 ```
 
 #### Exclusion List
@@ -68,40 +76,32 @@ Example exclusion usage - Exclude Google Cloud and Microsoft Azure:
 [+] Exclusion List:
     --------------
 
-        Exclude all dynamic sources:
-                `dynamic`
-        Exclude all static sources:
-                `static`
+        This list represents the value(s) a user can pass to the `--exclude` argument in order
+        to exclude a specific data source from being added to the final redirect.rules file.
+        NOTE: The `--exclude` argument accepts keywords and/or specific IP/Host/User-Agent's
+        to be excluded delimited by: SPACE
 
-        Static Sources:
-        --------------
-        Exclude User-Agents:
-                `agents`, `user-agents`
-        Exclude data via Malware Kit:
-                `mk`, `malware`, `malwarekit`
-        Exclude ASN via RADB:
-                `radb`, `asnradb`
-        Exclude ASN via BGPView:
-                `bgpview`, `asnbgpview`
-        Exclude Miscelenaeous:
-                `misc`
+        Example usage of the `--exclude` argument:
+                --exclude user-agents radb 35.0.0.0/8
 
-        Dynamic Sources:
-        ---------------
-        Exclude curi0usJack .htaccess:
-                `jack`, `htaccess`, `curiousjack`
-        Exclude Tor Exit Nodes:
-                `tor`
-        Exclude AWS:
-                `aws`
-        Exclude Google Cloud:
-                `google`, `googlecloud`
-        Exclude Microsoft Azure:
-                `azure`
-        Exclude Office 365:
-                `o365`, `office`, `office365`
-        Exclude Oracle Cloud:
-                `oracle`, `oraclecloud`
+        Exclusion Keyword List:
+        ----------------------
+                dynamic         # Exclude all dynamic sources
+                static          # Exclude all static sources
+                htaccess        # Exclude @curi0usJack's .htaccess file
+                user-agents
+                malwarekit
+                radb            # Exclude ASN data from RADB
+                bgpview         # Exclude ASN data from BGPView
+                AS#             # Exclude a specific ASN based on AS# format
+                misc
+                tor
+                aws
+                googlecloud
+                microsoft
+                azure
+                office365
+                oraclecloud
 ```
 
 > All static data is stored within the core/data/ directory in .py files as Python objects. If you need to remove an ASN/User-Agent/IP/etc. from a static list, open the corresponding Python file and comment out what you no longer require. If you need to add anything, follow the :format: at the top of the Python data file (if present).

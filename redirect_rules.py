@@ -19,7 +19,7 @@ import subprocess
 from datetime import datetime
 
 # Import core modules
-from core import dynamic, static, support
+from core import dynamic, static, htaccess, support
 
 
 __version__ = '1.2'
@@ -41,6 +41,26 @@ FULL_IP_LIST    = []  # De-dupe ips
 FULL_HOST_LIST  = []  # De-dupe hosts
 FULL_AGENT_LIST = []  # De-dupe agents
 
+## Exclusion Keywords
+# This will allow us to identify explicit exclusions
+KEYWORDS = [
+    'dynamic',
+    'static',
+    'htaccess',
+    'user-agents',
+    'malwarekit',
+    'radb',
+    'bgpview',
+    'misc',
+    'tor',
+    'aws',
+    'googlecloud',
+    'microsoft',
+    'azure',
+    'office365',
+    'oraclecloud'
+]
+
 
 if __name__ == '__main__':
 
@@ -50,8 +70,17 @@ if __name__ == '__main__':
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('-d', '--domain', type=str, help='Destination URL for redirects.')
     group.add_argument('--exclude-list', action='store_true', help='List all possible exclusions.')
-    parser.add_argument('--exclude',     type=str, nargs='+', help='Pass in one or more IP/Host/User-Agent groups to exclude.')
-    parser.add_argument('--verbose',     action='store_true', help='Enable verbose output.')
+    parser.add_argument(
+        '--exclude',
+        type=str,
+        nargs='+',
+        help='Pass in one or more data sources and/or specific IP/Host/User-Agent\'s to exclude. ' +
+        'Run the `--exclude-list` command to list all data source keywords that can be used. ' +
+        'Keywords and explicity strings are space delimited. ' +
+        'Example Usage: --exclude agents radb 35.0.0.0/8'
+    )
+    parser.add_argument('--exclude-file', type=str, help='File containing items/group keywords to exclude (line separated).')
+    parser.add_argument('--verbose',      action='store_true', help='Enable verbose output.')
     args = parser.parse_args()
 
     # Exit the script if not running on a *nix based system
@@ -80,6 +109,19 @@ if __name__ == '__main__':
     if not args.exclude:
         args.exclude = []
 
+    # Parse exclusion file and add to exclude list
+    if args.exclude_file and os.path.exists(args.exclude_file):
+        with open(args.exclude_file, 'r') as file_:
+            args.exclude += file_.readlines()
+            args.exclude = [x.strip() for x in args.exclude if x.strip() != '']
+
+    # Print exclusion count
+    # Only show count in case a large list was passed in
+    if len(args.exclude) > 0:
+        print('[+]\tExclusion List: %d' % len(args.exclude))
+        print('[*]\tFull exclusion list can be found at the end of the')
+        print('   \tredirect.rules file.\n')
+
     #> ----------------------------------------------------------------------------
     # Initialize redirect.rules file
     # Add comments to the redirect.rules file headers
@@ -101,14 +143,14 @@ if __name__ == '__main__':
     #> -----------------------------------------------------------------------------
     # Write @curi0usJack's .htaccess rules: https://gist.github.com/curi0usJack/971385e8334e189d93a6cb4671238b10
     # This is our starting point when included
-    if all(x not in args.exclude for x in ['jack', 'htaccess', 'curiousjack', 'dynamic']):
-        (FULL_IP_LIST, FULL_AGENT_LIST) = dynamic.write_jack_htaccess(
+    if all(x not in args.exclude for x in ['htaccess']):
+        (FULL_IP_LIST, FULL_AGENT_LIST) = htaccess.write_jack_htaccess(
             HTTP_HEADERS,
             HTTP_TIMEOUT,
-            args.domain,
             WORKINGFILE,
             FULL_IP_LIST,
-            FULL_AGENT_LIST
+            FULL_AGENT_LIST,
+            args  # This will allow us to remove sources dynamically
         )
 
     # If we skip @curi0usJack's file, we need to add a few lines...
@@ -120,7 +162,7 @@ if __name__ == '__main__':
 
     #> -----------------------------------------------------------------------------
     # Add __static__ User-Agent list
-    if all(x not in args.exclude for x in ['agents', 'user-agents', 'static']):
+    if all(x not in args.exclude for x in ['user-agents', 'static']):
         FULL_AGENT_LIST = static.write_static_agents(
             WORKINGFILE,
             FULL_AGENT_LIST
@@ -129,7 +171,7 @@ if __name__ == '__main__':
 
     #> -----------------------------------------------------------------------------
     # Add __static__ hostnames and IPs obtained via Malware Kit
-    if all(x not in args.exclude for x in ['malwarekit', 'mk', 'malware', 'static']):
+    if all(x not in args.exclude for x in ['malwarekit', 'static']):
         (FULL_IP_LIST, FULL_HOST_LIST) = static.write_data_from_malware_kit(
             WORKINGFILE,
             FULL_IP_LIST,
@@ -161,7 +203,7 @@ if __name__ == '__main__':
 
     #> -----------------------------------------------------------------------------
     # Add GoogleCloud IPs: dig txt _cloud-netblocks.googleusercontent.com
-    if all(x not in args.exclude for x in ['google', 'googlecloud', 'dynamic']):
+    if all(x not in args.exclude for x in ['googlecloud', 'dynamic']):
         FULL_IP_LIST = dynamic.write_google_cloud(
             WORKINGFILE,
             FULL_IP_LIST
@@ -182,7 +224,7 @@ if __name__ == '__main__':
     #> -----------------------------------------------------------------------------
     # Add Office365 IPs: https://endpoints.office.com/endpoints/worldwide?clientrequestid=b10c5ed1-bad1-445f-b386-b919946339a7
     # https://rhinosecuritylabs.com/social-engineering/bypassing-email-security-url-scanning/
-    if all(x not in args.exclude for x in ['o365', 'office', 'office365', 'dynamic']):
+    if all(x not in args.exclude for x in ['office365', 'dynamic']):
         (FULL_IP_LIST, FULL_HOST_LIST) = dynamic.write_office_365(
             HTTP_HEADERS,
             HTTP_TIMEOUT,
@@ -194,7 +236,7 @@ if __name__ == '__main__':
 
     #> -----------------------------------------------------------------------------
     # Add Oracle Cloud IPs: https://docs.cloud.oracle.com/en-us/iaas/tools/public_ip_ranges.json
-    if all(x not in args.exclude for x in ['oracle', 'oraclecloud', 'dynamic']):
+    if all(x not in args.exclude for x in ['oraclecloud', 'dynamic']):
         FULL_IP_LIST = dynamic.write_oracle_cloud(
             HTTP_HEADERS,
             HTTP_TIMEOUT,
@@ -205,21 +247,23 @@ if __name__ == '__main__':
 
     #> -----------------------------------------------------------------------------
     # Add companies by ASN - via whois.radb.net
-    if all(x not in args.exclude for x in ['radb', 'asnradb', 'static']):
+    if all(x not in args.exclude for x in ['radb', 'static']):
         FULL_IP_LIST = static.write_asn_radb(
             WORKINGFILE,
-            FULL_IP_LIST
+            FULL_IP_LIST,
+            args  # This will allow us to remove sources dynamically
         )
 
 
     #> -----------------------------------------------------------------------------
     # Add companies by ASN - via BGPView
-    if all(x not in args.exclude for x in ['bgpview', 'asnbgpview', 'static']):
+    if all(x not in args.exclude for x in ['bgpview', 'static']):
         FULL_IP_LIST = static.write_asn_bgpview(
             HTTP_HEADERS,
             HTTP_TIMEOUT,
             WORKINGFILE,
-            FULL_IP_LIST
+            FULL_IP_LIST,
+            args  # This will allow us to remove sources dynamically
         )
 
 
@@ -236,7 +280,23 @@ if __name__ == '__main__':
     # Rule clean up
     # Keep in main file since we will run every time
     print("\n[*]\tPerforming rule de-duplication clean up...")
-    WORKINGFILE.close()  # Close out working file before modding it
+
+    # Add a note at the end of the rules file of what was excluded...
+    if len(args.exclude) > 0:
+        WORKINGFILE.write("\n\t#\n")
+        if any(x in KEYWORDS or re.search('^AS',x) for x in args.exclude):
+            WORKINGFILE.write("\t# The following data groups were excluded:\n")
+            for item in args.exclude:
+                if item in KEYWORDS:
+                    WORKINGFILE.write("\t#\t%s\n" % item)
+
+        if any(x not in KEYWORDS for x in args.exclude):
+            WORKINGFILE.write("\n\t# The following explicit values were commented out:\n")
+            for item in args.exclude:
+                if item not in KEYWORDS:
+                    WORKINGFILE.write("\t#\t%s\n" % item)
+
+    WORKINGFILE.close()  # Close out working file before modding it via bash
 
     # Let's build our CIDR map to identify redundant CIDRs
     tmp_ip_list   = []
@@ -268,6 +328,26 @@ if __name__ == '__main__':
         if ip_cidr in FULL_IP_LIST:
             ip = re.sub('\.', '\\.', ip)
             remove_list.append(ip)
+
+    # Add user defined exclusions
+    for item in args.exclude:
+        # Make sure this isn't a keyword or known value
+        if item not in KEYWORDS and not re.search('^AS', item):
+            # Instead of trying to identify what type of data
+            # the user passed... let's just escape any
+            # characters needed for sed
+            # Escape `.`
+            item = re.sub('\.', '\\.', item)
+            # Escape `/`
+            item = re.sub('/', '\\/', item)
+            # Escape `$`
+            item = re.sub('\$', '\\$', item)
+            # Escape `^`
+            item = re.sub('\^', '\\^', item)
+            # Escape `*`
+            item = re.sub('\*', '\\*', item)
+            if item not in remove_list:
+                remove_list.append(item)
 
     print("[*]\tRemoving %d duplicate IPs/Networks..." % len(remove_list))
     # Now let's comment out each CIDR

@@ -102,13 +102,16 @@ def write_data_from_malware_kit(workingfile, ip_list, host_list):
 #> -----------------------------------------------------------------------------
 # Add companies by ASN - via whois.radb.net
 # NOTE: This is __static__ because the ASN list we are using is static
-def write_asn_radb(workingfile, ip_list):
+def write_asn_radb(workingfile, ip_list, args):
     # Individual Company ASNs
     #   -- @curi0usJack and @violentlydave
     #   :Format: CompanyName_AS12345
     asn_list = asns.asns
 
     for asn in asn_list:
+        if any(x in asn for x in args.exclude):
+            continue  # Skip ASN if excluded
+
         asn = asn.split('_')
 
         print("[*]\tPulling %s -- %s via RADB..." % (asn[1], asn[0]))
@@ -154,14 +157,18 @@ def write_asn_radb(workingfile, ip_list):
 #> -----------------------------------------------------------------------------
 # Add companies by ASN - via BGPView
 # NOTE: This is __static__ because the ASN list we are using is static
-def write_asn_bgpview(headers, timeout, workingfile, ip_list):
+def write_asn_bgpview(headers, timeout, workingfile, ip_list, args):
     # Individual Company ASNs
     #   -- @curi0usJack and @violentlydave
     #   :Format: CompanyName_AS12345
     asn_list = asns.asns
 
     for asn in asn_list:
+        if any(x in asn for x in args.exclude):
+            continue  # Skip ASN if excluded
+
         asn = asn.split('_')
+
         print("[*]\tPulling %s -- %s via BGPView..." % (asn[1], asn[0]))
         workingfile.write("\n\n\t# Live copy of %s ips based on BGPView ASN %s: %s\n" % (
             asn[0],

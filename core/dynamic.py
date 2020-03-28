@@ -14,69 +14,6 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 
 #> ----------------------------------------------------------------------------
-# @curi0usJack's .htaccess rules: https://gist.github.com/curi0usJack/971385e8334e189d93a6cb4671238b10
-# Current raw gist link as of: March 27, 2020
-def write_jack_htaccess(headers, timeout, destination, workingfile, ip_list, agent_list):
-    print("[*]\tPulling @curi0usJack's redirect rules...")
-
-    # Split the lines via new-line since its a raw txt file being processed
-    htaccess_file = requests.get(
-        'https://gist.githubusercontent.com/curi0usJack/971385e8334e189d93a6cb4671238b10/raw/13b11edf67f746bdd940ff3f2e9b8dc18f8ad7d4/.htaccess',
-        headers=headers,
-        timeout=timeout,
-        verify=False
-    ).content.decode('utf-8').split('\n')
-
-    # Write the file contents to our local redirect.rules, but remove
-    # commenting at top of file - replaced by our own modified commenting
-    print("[*]\tWriting @curi0usJack's redirect rules...")
-
-    # Keep count of the IP/User-Agents documented
-    count_ip = 0
-    count_ua = 0
-
-    # Boolean to remove header comments
-    skip_comments = False
-
-    for line in htaccess_file:
-
-        # This can probably be optimized...
-        # Skip the first few lines that are comments by waiting
-        # for a line not containing a `#`
-        if not skip_comments and '#' not in line:
-            skip_comments = True
-
-        if skip_comments:
-
-            # Add user-supplied redirect destination
-            if 'DESTINATIONURL' in line:
-                line = re.sub('\|DESTINATIONURL\|', destination, line)
-
-            workingfile.write(line + '\n')  # New-line was removed on split earlier
-
-            # Check for IPs to keep a list for de-duping
-            if all(x in line for x in ['RewriteCond', 'expr']):
-                ip_list.append(line.split("'")[1])
-                count_ip += 1
-
-            # Check for User-Agents to keep a list for de-duping
-            if all(x in line for x in ['RewriteCond', 'HTTP_USER_AGENT']):
-                if '"' in line:  # This is specific to one of the user-agents
-                    agent_list.append(re.search('"(.+)"', line).group(1))
-
-                else:
-                    agent_list.append(re.search('(\^.+\$)', line).group(1))
-
-                count_ua += 1
-
-
-    workingfile.write("\t# @curi0usJack IP Count:         %d\n" % count_ip)
-    workingfile.write("\t# @curi0usJack User Agent Count: %d\n" % count_ua)
-
-    return (ip_list, agent_list)
-
-
-#> ----------------------------------------------------------------------------
 # Add Tor exit nodes: https://check.torproject.org/exit-addresses
 def write_tor_nodes(headers, timeout, workingfile, ip_list):
     print("[*]\tPulling TOR exit node list...")
