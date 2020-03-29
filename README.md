@@ -126,7 +126,7 @@ pip3 install -r requirements.txt
 ### Acknowledgements
 **@curi0usJack** - https://gist.github.com/curi0usJack/971385e8334e189d93a6cb4671238b10<br>
 **@violentlydave** - [mkhtaccess_red](https://github.com/violentlydave/mkhtaccess_red/)<br>
-**0xdade** - [sephiroth](https://github.com/0xdade/sephiroth)
+**@0xdade** - [sephiroth](https://github.com/0xdade/sephiroth)
 
 ### TODO
 * Add better exception handling
