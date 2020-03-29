@@ -226,7 +226,7 @@ def write_misc(workingfile, ip_list):
     #   :Format: ipORnetwork-Ownername-Reason
     misc_list = misc.misc
 
-    print("[*]\tAdding Misc Sources")
+    print("[*]\tAdding Miscellaneous Sources...")
     workingfile.write("\n\n\t# Misc Sources: %s\n" % datetime.now().strftime("%Y%m%d-%H:%M:%S"))
 
     count = 0
