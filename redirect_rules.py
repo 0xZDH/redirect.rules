@@ -8,6 +8,9 @@
 #    - https://gist.github.com/curi0usJack/971385e8334e189d93a6cb4671238b10
 #    - https://github.com/violentlydave/mkhtaccess_red/blob/master/mkhtaccess_red
 
+#   Code architecture based on:
+#    - https://github.com/0xdade/sephiroth
+
 #> -----------------------------------------------------------------------------
 
 import os
@@ -18,8 +21,10 @@ import argparse
 import subprocess
 from datetime import datetime
 
-# Import core modules
-from core import dynamic, static, htaccess, support
+# Import modules
+# from core import dynamic, static, htaccess, support
+from core import support
+from core.source import Source
 
 
 __version__ = '1.2'
@@ -44,20 +49,24 @@ FULL_AGENT_LIST = []  # De-dupe agents
 ## Exclusion Keywords
 # This will allow us to identify explicit exclusions
 KEYWORDS = [
-    'dynamic',
-    'static',
+    'dynamic',      # All dynamic sources
+    'static',       # All static sources
     'htaccess',
     'user-agents',
     'malwarekit',
+    'asn',          # Exclude all ASN sources
     'radb',
     'bgpview',
     'misc',
     'tor',
+    'amazon',       # Exclude all Amazon sources
     'aws',
+    'google',       # Exclude all Google sources
     'googlecloud',
-    'microsoft',
+    'microsoft',    # Exclude all Microsoft sources
     'azure',
     'office365',
+    'oracle',       # Exclude all Oracle sources
     'oraclecloud'
 ]
 
@@ -128,6 +137,7 @@ if __name__ == '__main__':
         print('[*]\tFull exclusion list can be found at the end of the')
         print('   \tredirect.rules file.\n')
 
+
     #> ----------------------------------------------------------------------------
     # Initialize redirect.rules file
     # Add header comments to the redirect.rules file headers
@@ -148,16 +158,19 @@ if __name__ == '__main__':
 
     #> -----------------------------------------------------------------------------
     # Write @curi0usJack's .htaccess rules: https://gist.github.com/curi0usJack/971385e8334e189d93a6cb4671238b10
-    # This is our starting point when included
-    if all(x not in args.exclude for x in ['htaccess']):
-        (FULL_IP_LIST, FULL_AGENT_LIST) = htaccess.write_jack_htaccess(
-            HTTP_HEADERS,
-            HTTP_TIMEOUT,
-            WORKINGFILE,
-            FULL_IP_LIST,
-            FULL_AGENT_LIST,
-            args  # This will allow us to remove sources dynamically
+    if 'htaccess' not in args.exclude:  # Exclude keyword
+        source = Source(
+            'htaccess',
+            [  # Params object
+                WORKINGFILE,
+                HTTP_HEADERS,
+                HTTP_TIMEOUT,
+                FULL_IP_LIST,
+                FULL_AGENT_LIST,
+                args  # This will allow us to remove sources dynamically
+            ]
         )
+        (FULL_IP_LIST, FULL_AGENT_LIST) = source.process_data()
 
     # If we skip @curi0usJack's file, we need to add a few lines...
     else:
@@ -167,119 +180,174 @@ if __name__ == '__main__':
 
 
     #> -----------------------------------------------------------------------------
-    # Add __static__ User-Agent list
-    if all(x not in args.exclude for x in ['user-agents', 'static']):
-        FULL_AGENT_LIST = static.write_static_agents(
-            WORKINGFILE,
-            FULL_AGENT_LIST
+    # Add User-Agent list
+    # __static__
+    if all(x not in args.exclude for x in ['user-agents', 'static']):  # Exclude keywords
+        source = Source(
+            'user-agents',
+            [  # Params object
+                WORKINGFILE,
+                FULL_AGENT_LIST
+            ]
         )
+        FULL_AGENT_LIST = source.process_data()
 
 
     #> -----------------------------------------------------------------------------
-    # Add __static__ hostnames and IPs obtained via Malware Kit
-    if all(x not in args.exclude for x in ['malwarekit', 'static']):
-        (FULL_IP_LIST, FULL_HOST_LIST) = static.write_data_from_malware_kit(
-            WORKINGFILE,
-            FULL_IP_LIST,
-            FULL_HOST_LIST
+    # Add hostnames and IPs obtained via Malware Kit
+    # __static__
+    if all(x not in args.exclude for x in ['malwarekit', 'static']):  # Exclude keywords
+        source = Source(
+            'malwarekit',
+            [  # Params object
+                WORKINGFILE,
+                FULL_IP_LIST,
+                FULL_HOST_LIST
+            ]
         )
+        (FULL_IP_LIST, FULL_HOST_LIST) = source.process_data()
 
 
     #> -----------------------------------------------------------------------------
     # Add Tor exit nodes: https://check.torproject.org/exit-addresses
-    if all(x not in args.exclude for x in ['tor', 'dynamic']):
-        FULL_IP_LIST = dynamic.write_tor_nodes(
-            HTTP_HEADERS,
-            HTTP_TIMEOUT,
-            WORKINGFILE,
-            FULL_IP_LIST
+    # __dynamic__
+    if all(x not in args.exclude for x in ['tor', 'dynamic']):  # Exclude keywords
+        source = Source(
+            'tor',
+            [  # Params object
+                WORKINGFILE,
+                HTTP_HEADERS,
+                HTTP_TIMEOUT,
+                FULL_IP_LIST
+            ]
         )
+        FULL_IP_LIST = source.process_data()
 
 
     #> -----------------------------------------------------------------------------
     # Add AWS IPs: https://ip-ranges.amazonaws.com/ip-ranges.json
-    if all(x not in args.exclude for x in ['aws', 'dynamic']):
-        FULL_IP_LIST = dynamic.write_aws(
-            HTTP_HEADERS,
-            HTTP_TIMEOUT,
-            WORKINGFILE,
-            FULL_IP_LIST
+    # __dynamic__
+    if all(x not in args.exclude for x in ['aws', 'dynamic']):  # Exclude keywords
+        source = Source(
+            'aws',
+            [  # Params object
+                WORKINGFILE,
+                HTTP_HEADERS,
+                HTTP_TIMEOUT,
+                FULL_IP_LIST
+            ]
         )
+        FULL_IP_LIST = source.process_data()
 
 
     #> -----------------------------------------------------------------------------
     # Add GoogleCloud IPs: dig txt _cloud-netblocks.googleusercontent.com
-    if all(x not in args.exclude for x in ['googlecloud', 'dynamic']):
-        FULL_IP_LIST = dynamic.write_google_cloud(
-            WORKINGFILE,
-            FULL_IP_LIST
+    # __dynamic__
+    if all(x not in args.exclude for x in ['google', 'googlecloud', 'dynamic']):  # Exclude keywords
+        source = Source(
+            'googlecloud',
+            [  # Params object
+                WORKINGFILE,
+                FULL_IP_LIST
+            ]
         )
+        FULL_IP_LIST = source.process_data()
 
 
     #> -----------------------------------------------------------------------------
     # Add Microsoft Azure IPs: https://www.microsoft.com/en-us/download/confirmation.aspx?id=41653
-    if all(x not in args.exclude for x in ['azure', 'dynamic']):
-        FULL_IP_LIST = dynamic.write_azure(
-            HTTP_HEADERS,
-            HTTP_TIMEOUT,
-            WORKINGFILE,
-            FULL_IP_LIST
+    # __dynamic__
+    if all(x not in args.exclude for x in ['microsoft', 'azure', 'dynamic']):  # Exclude keywords
+        source = Source(
+            'azure',
+            [  # Params object
+                WORKINGFILE,
+                HTTP_HEADERS,
+                HTTP_TIMEOUT,
+                FULL_IP_LIST
+            ]
         )
+        FULL_IP_LIST = source.process_data()
 
 
     #> -----------------------------------------------------------------------------
     # Add Office365 IPs: https://endpoints.office.com/endpoints/worldwide?clientrequestid=b10c5ed1-bad1-445f-b386-b919946339a7
     # https://rhinosecuritylabs.com/social-engineering/bypassing-email-security-url-scanning/
-    if all(x not in args.exclude for x in ['office365', 'dynamic']):
-        (FULL_IP_LIST, FULL_HOST_LIST) = dynamic.write_office_365(
-            HTTP_HEADERS,
-            HTTP_TIMEOUT,
-            WORKINGFILE,
-            FULL_IP_LIST,
-            FULL_HOST_LIST
+    # __dynamic__
+    if all(x not in args.exclude for x in ['microsoft', 'office365', 'dynamic']):  # Exclude keywords
+        source = Source(
+            'office365',
+            [  # Params object
+                WORKINGFILE,
+                HTTP_HEADERS,
+                HTTP_TIMEOUT,
+                FULL_IP_LIST,
+                FULL_HOST_LIST
+            ]
         )
+        (FULL_IP_LIST, FULL_HOST_LIST) = source.process_data()
 
 
     #> -----------------------------------------------------------------------------
     # Add Oracle Cloud IPs: https://docs.cloud.oracle.com/en-us/iaas/tools/public_ip_ranges.json
-    if all(x not in args.exclude for x in ['oraclecloud', 'dynamic']):
-        FULL_IP_LIST = dynamic.write_oracle_cloud(
-            HTTP_HEADERS,
-            HTTP_TIMEOUT,
-            WORKINGFILE,
-            FULL_IP_LIST
+    # __dynamic__
+    if all(x not in args.exclude for x in ['orcale', 'oraclecloud', 'dynamic']):  # Exclude keywords
+        source = Source(
+            'oraclecloud',
+            [  # Params object
+                WORKINGFILE,
+                HTTP_HEADERS,
+                HTTP_TIMEOUT,
+                FULL_IP_LIST
+            ]
         )
+        FULL_IP_LIST = source.process_data()
 
 
     #> -----------------------------------------------------------------------------
     # Add companies by ASN - via whois.radb.net
-    if all(x not in args.exclude for x in ['radb', 'static']):
-        FULL_IP_LIST = static.write_asn_radb(
-            WORKINGFILE,
-            FULL_IP_LIST,
-            args  # This will allow us to remove sources dynamically
+    # __static__
+    if all(x not in args.exclude for x in ['asn', 'radb', 'static']):
+        source = Source(
+            'radb',
+            [  # Params object
+                WORKINGFILE,
+                FULL_IP_LIST,
+                args  # This will allow us to remove sources dynamically
+            ]
         )
+        FULL_IP_LIST = source.process_data()
 
 
     #> -----------------------------------------------------------------------------
     # Add companies by ASN - via BGPView
-    if all(x not in args.exclude for x in ['bgpview', 'static']):
-        FULL_IP_LIST = static.write_asn_bgpview(
-            HTTP_HEADERS,
-            HTTP_TIMEOUT,
-            WORKINGFILE,
-            FULL_IP_LIST,
-            args  # This will allow us to remove sources dynamically
+    # __static__
+    if all(x not in args.exclude for x in ['asn', 'bgpview', 'static']):
+        source = Source(
+            'bgpview',
+            [  # Params object
+                WORKINGFILE,
+                HTTP_HEADERS,
+                HTTP_TIMEOUT,
+                FULL_IP_LIST,
+                args  # This will allow us to remove sources dynamically
+            ]
         )
+        FULL_IP_LIST = source.process_data()
 
 
     #> -----------------------------------------------------------------------------
     # Misc sources -- see data/misc.py for reasons
+    # __static__
     if all(x not in args.exclude for x in ['misc', 'static']):
-        FULL_IP_LIST = static.write_misc(
-            WORKINGFILE,
-            FULL_IP_LIST
+        source = Source(
+            'misc',
+            [  # Params object
+                WORKINGFILE,
+                FULL_IP_LIST
+            ]
         )
+        FULL_IP_LIST = source.process_data()
 
 
     #> -----------------------------------------------------------------------------

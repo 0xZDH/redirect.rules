@@ -5,6 +5,9 @@ This is a Python rewrite and expansion of:
 * https://gist.github.com/curi0usJack/971385e8334e189d93a6cb4671238b10
 * https://github.com/violentlydave/mkhtaccess_red/blob/master/mkhtaccess_red
 
+Code architecture based on:
+* https://github.com/0xdade/sephiroth
+
 This tool dynamically generates a redirect.rules file that will redirect Sandbox environments away from our payload hosting/C2 servers.
 
 ### Usage
@@ -89,24 +92,28 @@ Example exclusion usage - Exclude Tor, Microsoft Azure, and an explicit CIDR:
                 dynamic         # Exclude all dynamic sources
                 static          # Exclude all static sources
                 htaccess        # Exclude @curi0usJack's .htaccess file
-                user-agents
-                malwarekit
+                user-agents     # Exclude User-Agents file
+                malwarekit      # Exclude data obtained via Malware Kit
+                asn             # Exclude all ASN data
                 radb            # Exclude ASN data from RADB
                 bgpview         # Exclude ASN data from BGPView
                 AS#             # Exclude a specific ASN based on AS# format
-                misc
-                tor
-                aws
-                googlecloud
-                microsoft
-                azure
-                office365
-                oraclecloud
+                misc            # Exclude Misc data sources
+                tor             # Exclude TOR Exit Node data
+                amazon          # Exclude all Amazon data
+                aws             # Exclude AWS data
+                google          # Exclude all Google data
+                googlecloud     # Exclude Google Cloud data
+                microsoft       # Exclude all Microsoft data
+                azure           # Exclude MS Azure data
+                office365       # Exclude Office365 data
+                oracle          # Exclude all Oracle data
+                oraclecloud     # Exclude Oracle Cloud data
 
         NOTE: Company names/identifiers used within the core/data/asns.py
         file can also be used.
-                Exclude All ZScaler ASN's: `--exclude ZSCALER`
-                Exclude ZScaler's ATL ASN: `--exclude ZSCALER-ATLANTA`
+        Exclude All ZScaler ASN's: `--exclude ZSCALER`
+        Exclude ZScaler's ATL ASN: `--exclude ZSCALER-ATLANTA`
 ```
 
 > All static data is stored within the core/data/ directory in .py files as Python objects. If you need to remove an ASN/User-Agent/IP/etc. from a static list, open the corresponding Python file and comment out what you no longer require. If you need to add anything, follow the :format: at the top of the Python data file (if present).
@@ -118,9 +125,11 @@ pip3 install -r requirements.txt
 
 ### Acknowledgements
 **@curi0usJack** - https://gist.github.com/curi0usJack/971385e8334e189d93a6cb4671238b10<br>
-**@violentlydave** - [mkhtaccess_red](https://github.com/violentlydave/mkhtaccess_red/)
+**@violentlydave** - [mkhtaccess_red](https://github.com/violentlydave/mkhtaccess_red/)<br>
+**0xdade** - [sephiroth](https://github.com/0xdade/sephiroth)
 
 ### TODO
+* Add better exception handling
 * Reorder groups by most likely to be seen
 * Sort IPs/Hosts/Agents in each grouping
 * Build an index at the top of redirect.rules based on starting line number of each grouping

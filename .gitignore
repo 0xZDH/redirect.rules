@@ -4,6 +4,9 @@ __pycache__
 core/*.pyc
 core/.DS_Store
 core/__pycache__
-core/data/*.pyc
-core/data/.DS_Store
-core/data/__pycache__
+core/static/*.pyc
+core/static/.DS_Store
+core/static/__pycache__
+core/sources/*.pyc
+core/sources/.DS_Store
+core/sources/__pycache__
