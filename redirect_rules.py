@@ -66,22 +66,21 @@ if __name__ == '__main__':
 
     # Build command line arguments
     parser = argparse.ArgumentParser(description="Dynamically generate redirect.rules file -- v{VERS}".format(VERS=__version__))
-    # Allow a user to scrape names or just convert an already generated list of names
-    group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('-d', '--domain', type=str, help='Destination URL for redirects.')
-    group.add_argument('--exclude-list', action='store_true', help='List all possible exclusions.')
+    parser.add_argument('-d', '--domain', type=str, help='Destination URL for redirects.')
     parser.add_argument(
         '--exclude',
         type=str,
         nargs='+',
-        help='Pass in one or more data sources and/or specific IP/Host/User-Agent\'s to exclude. ' +
+        help='Pass in one or more data sources and/or explicit IP/Host/User-Agent\'s to exclude. ' +
         'Run the `--exclude-list` command to list all data source keywords that can be used. ' +
         'Keywords and explicit strings should be space delimited. ' +
-        'Example Usage: --exclude agents radb 35.0.0.0/8'
+        'Example Usage: `--exclude agents radb 35.0.0.0/8`'
     )
     parser.add_argument('--exclude-file', type=str, help='File containing items/group keywords to exclude (line separated).')
+    parser.add_argument('--exclude-list', action='store_true', help='List all possible exclusions.')
     parser.add_argument('--verbose',      action='store_true', help='Enable verbose output.')
     args = parser.parse_args()
+
 
     # Exit the script if not running on a *nix based system
     # *nix required for subprocess commands like `grep` and `sed`
@@ -94,17 +93,24 @@ if __name__ == '__main__':
         support.print_exclude_list()
         sys.exit()
 
+    # If we made it past the exclude-list, make sure
+    # the user provided a domain
+    if not args.domain:
+        print('[!]\tThe following arguments are required: -d/--domain')
+        sys.exit()
+
+
     print('''
     ----------------------------------
-    Redirect Rules Generation Tool
-                v{VERS}
+      Redirect Rules Generation Tool
+                   v{VERS}
     ----------------------------------
     '''.format(VERS=__version__))
 
     # Start timer
     start = time.perf_counter()
 
-    # If no exclusions, make the variable usable...
+    # If no exclusions, make the variable usable
     # Not a great work around, but works for now...
     if not args.exclude:
         args.exclude = []
@@ -124,16 +130,16 @@ if __name__ == '__main__':
 
     #> ----------------------------------------------------------------------------
     # Initialize redirect.rules file
-    # Add comments to the redirect.rules file headers
+    # Add header comments to the redirect.rules file headers
     WORKINGFILE.write("\t#\n")
-    WORKINGFILE.write("\t# %s to block AV Sandboxes - built: %s\n" % (__file__, datetime.now().strftime("%Y%m%d-%H:%M:%S")))
+    WORKINGFILE.write("\t# %s v%s to block AV Sandboxes - built: %s\n" % (__file__, __version__, datetime.now().strftime("%Y%m%d-%H:%M:%S")))
     WORKINGFILE.write("\t#\n\n")
 
-    # Add comments from @curi0usJack's .htaccess, but not all
+    # Add updated comments from @curi0usJack's .htaccess
     WORKINGFILE.write("\t# Note: This currently requires Apache 2.4+\n")
     WORKINGFILE.write("\t#\n")
-    WORKINGFILE.write("\t# Example usage:\n")
-    WORKINGFILE.write("\t# Save file as: /etc/apache2/redirect.rules.\n")
+    WORKINGFILE.write("\t# Example Usage:\n")
+    WORKINGFILE.write("\t# Save file as /etc/apache2/redirect.rules\n")
     WORKINGFILE.write("\t# Within your site's Apache conf file (in /etc/apache2/sites-avaiable/),\n")
     WORKINGFILE.write("\t# put the following statement near the bottom:\n")
     WORKINGFILE.write("\t# \tInclude /etc/apache2/redirect.rules\n")

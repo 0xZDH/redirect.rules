@@ -9,9 +9,9 @@ This tool dynamically generates a redirect.rules file that will redirect Sandbox
 
 ### Usage
 ```
-usage: redirect_rules.py [-h] (-d DOMAIN | --exclude-list)
-                         [--exclude EXCLUDE [EXCLUDE ...]]
-                         [--exclude-file EXCLUDE_FILE] [--verbose]
+usage: redirect_rules.py [-h] [-d DOMAIN] [--exclude EXCLUDE [EXCLUDE ...]]
+                         [--exclude-file EXCLUDE_FILE] [--exclude-list]
+                         [--verbose]
 
 Dynamically generate redirect.rules file -- v1.2
 
@@ -19,7 +19,6 @@ optional arguments:
   -h, --help            show this help message and exit
   -d DOMAIN, --domain DOMAIN
                         Destination URL for redirects.
-  --exclude-list        List all possible exclusions.
   --exclude EXCLUDE [EXCLUDE ...]
                         Pass in one or more data sources and/or specific
                         IP/Host/User-Agent's to exclude. Run the `--exclude-
@@ -30,6 +29,7 @@ optional arguments:
   --exclude-file EXCLUDE_FILE
                         File containing items/group keywords to exclude (line
                         separated).
+  --exclude-list        List all possible exclusions.
   --verbose             Enable verbose output.
 ```
 
@@ -38,8 +38,8 @@ optional arguments:
 > python3 redirect_rules.py -d test.com
 
     ----------------------------------
-    Redirect Rules Generation Tool
-                v1.2
+      Redirect Rules Generation Tool
+                   v1.2
     ----------------------------------
 
 [*]     Pulling @curi0usJack's redirect rules...

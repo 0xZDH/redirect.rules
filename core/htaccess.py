@@ -46,27 +46,27 @@ def write_jack_htaccess(headers, timeout, workingfile, ip_list, agent_list, args
     # Use comma delimited strings as the key since there are a few groups that
     # can be excluded with multiple keywords
     file_groups = {
-        'aws,azure':          htaccess_file[(22-START):(31-STOP)],
-        'aws':                htaccess_file[(32-START):(114-STOP)],
-        'forcepoint':         htaccess_file[(115-START):(119-STOP)],
-        'domaintools':        htaccess_file[(120-START):(122-STOP)],
-        'zscaler':            htaccess_file[(123-START):(126-STOP)],
-        'misc':               htaccess_file[(127-START):(137-STOP)],
-        'virustotal':         htaccess_file[(138-START):(151-STOP)],
-        'trendmicro':         htaccess_file[(152-START):(172-STOP)],
-        'bluecoat':           htaccess_file[(173-START):(177-STOP)],
-        'urlquery':           htaccess_file[(178-START):(189-STOP)],
-        'paloalto':           htaccess_file[(190-START):(207-STOP)],
-        'proofpoint':         htaccess_file[(208-START):(224-STOP)],
-        'messagelabs':        htaccess_file[(225-START):(249-STOP)],
-        'fortigate':          htaccess_file[(250-START):(267-STOP)],
-        'symantec':           htaccess_file[(268-START):(306-STOP)],
-        'microsoft':          htaccess_file[(307-START):(310-STOP)],
-        'microsoft,azure':    htaccess_file[(311-START):(435-STOP)],
-        'agents,user-agents': htaccess_file[(437-START):(443-STOP)],
-        'barracuda':          htaccess_file[(444-START):(447-STOP)],
-        'slackbot':           htaccess_file[(448-START):(451-STOP)],
-        'tor':                htaccess_file[(452-START):-1]
+        'aws,azure':       htaccess_file[(22-START):(31-STOP)],
+        'aws':             htaccess_file[(32-START):(114-STOP)],
+        'forcepoint':      htaccess_file[(115-START):(119-STOP)],
+        'domaintools':     htaccess_file[(120-START):(122-STOP)],
+        'zscaler':         htaccess_file[(123-START):(126-STOP)],
+        'misc':            htaccess_file[(127-START):(137-STOP)],
+        'virustotal':      htaccess_file[(138-START):(151-STOP)],
+        'trendmicro':      htaccess_file[(152-START):(172-STOP)],
+        'bluecoat':        htaccess_file[(173-START):(177-STOP)],
+        'urlquery':        htaccess_file[(178-START):(189-STOP)],
+        'paloalto':        htaccess_file[(190-START):(207-STOP)],
+        'proofpoint':      htaccess_file[(208-START):(224-STOP)],
+        'messagelabs':     htaccess_file[(225-START):(249-STOP)],
+        'fortigate':       htaccess_file[(250-START):(267-STOP)],
+        'symantec':        htaccess_file[(268-START):(306-STOP)],
+        'microsoft':       htaccess_file[(307-START):(310-STOP)],
+        'microsoft,azure': htaccess_file[(311-START):(435-STOP)],
+        'user-agents':     htaccess_file[(437-START):(443-STOP)],
+        'barracuda':       htaccess_file[(444-START):(447-STOP)],
+        'slackbot':        htaccess_file[(448-START):(451-STOP)],
+        'tor':             htaccess_file[(452-START):-1]  # Go until EOF
     }
 
 
