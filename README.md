@@ -68,7 +68,7 @@ redirect_rules.py executed in 59.55 seconds.
 
 Example exclusion usage - Exclude Google Cloud and Microsoft Azure:
 ```
-> python3 redirect_rules.py -d test.com --exclude google azure 35.0.0.0/8
+> python3 redirect_rules.py -d test.com --exclude tor azure 35.0.0.0/8
 ```
 
 #### Exclusion List
