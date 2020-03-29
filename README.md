@@ -20,12 +20,12 @@ optional arguments:
   -d DOMAIN, --domain DOMAIN
                         Destination URL for redirects.
   --exclude EXCLUDE [EXCLUDE ...]
-                        Pass in one or more data sources and/or specific
+                        Pass in one or more data sources and/or explicit
                         IP/Host/User-Agent's to exclude. Run the `--exclude-
                         list` command to list all data source keywords that
                         can be used. Keywords and explicit strings should be
-                        space delimited. Example Usage: --exclude agents radb
-                        35.0.0.0/8
+                        space delimited. Example Usage: `--exclude agents radb
+                        35.0.0.0/8`
   --exclude-file EXCLUDE_FILE
                         File containing items/group keywords to exclude (line
                         separated).
@@ -102,6 +102,11 @@ Example exclusion usage - Exclude Google Cloud and Microsoft Azure:
                 azure
                 office365
                 oraclecloud
+
+        NOTE: Company names/identifiers used within the core/data/asns.py
+        file can also be used.
+                Exclude All ZScaler ASN's: `--exclude ZSCALER`
+                Exclude ZScaler's ATL ASN: `--exclude ZSCALER-ATLANTA`
 ```
 
 > All static data is stored within the core/data/ directory in .py files as Python objects. If you need to remove an ASN/User-Agent/IP/etc. from a static list, open the corresponding Python file and comment out what you no longer require. If you need to add anything, follow the :format: at the top of the Python data file (if present).

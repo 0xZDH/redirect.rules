@@ -39,3 +39,8 @@ def print_exclude_list():
     print('\t\tazure')
     print('\t\toffice365')
     print('\t\toraclecloud')
+
+    print('\n\tNOTE: Company names/identifiers used within the core/data/asns.py')
+    print('\tfile can also be used.')
+    print('\tExclude All ZScaler ASN\'s: `--exclude ZSCALER`')
+    print('\tExclude ZScaler\'s ATL ASN: `--exclude ZSCALER-ATLANTA`')

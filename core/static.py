@@ -107,9 +107,10 @@ def write_asn_radb(workingfile, ip_list, args):
     #   -- @curi0usJack and @violentlydave
     #   :Format: CompanyName_AS12345
     asn_list = asns.asns
+    asn_list = [x.upper() for x in asn_list]
 
     for asn in asn_list:
-        if any(x in asn for x in args.exclude):
+        if any(x.upper() in asn for x in args.exclude):
             continue  # Skip ASN if excluded
 
         asn = asn.split('_')
@@ -162,9 +163,10 @@ def write_asn_bgpview(headers, timeout, workingfile, ip_list, args):
     #   -- @curi0usJack and @violentlydave
     #   :Format: CompanyName_AS12345
     asn_list = asns.asns
+    asn_list = [x.upper() for x in asn_list]
 
     for asn in asn_list:
-        if any(x in asn for x in args.exclude):
+        if any(x.upper() in asn for x in args.exclude):
             continue  # Skip ASN if excluded
 
         asn = asn.split('_')
