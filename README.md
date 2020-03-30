@@ -135,7 +135,8 @@ pip3 install -r requirements.txt
 # Run docker attaching current directory
   docker run --rm -v $(pwd):/tmp redirect_rules -d test.com
 
-# Once the run completes, the `redirect.rules` file will be located in the directory attached to the docker run.
+# Once the run completes, the `redirect.rules` file will be located
+# in the directory attached to the docker run.
 ```
 
 #### Run With Exclusoins
