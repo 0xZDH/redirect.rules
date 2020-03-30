@@ -108,7 +108,7 @@ class HTAccess(Base):
         for line in file_headers:
             # Add user-supplied redirect destination
             if 'DESTINATIONURL' in line:
-                line = re.sub('\|DESTINATIONURL\|', self.args.domain, line)
+                line = re.sub('\|DESTINATIONURL\|', self.args.destination, line)
 
             self.workingfile.write(line + '\n')
 

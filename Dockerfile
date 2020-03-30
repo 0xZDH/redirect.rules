@@ -2,11 +2,11 @@
 #   docker build --tag=redirect_rules .
 #
 # Run:
-#   docker run --rm -v $(pwd):/tmp redirect_rules -d <REDIRECT_DOMAIN>
+#   docker run --rm -v /tmp:/tmp redirect_rules -d <REDIRECT_DOMAIN>
 #
 # Run with an exclude file:
 #   docker cp exclude.txt <CONTAINER>:/app/exclude.txt
-#   docker run --rm -v $(pwd):/tmp redirect_rules -d <REDIRECT_DOMAIN> --exclude-file exclude.txt
+#   docker run --rm -v /tmp:/tmp redirect_rules -d <REDIRECT_DOMAIN> --exclude-file exclude.txt
 
 # Reference: https://github.com/0xdade/sephiroth/blob/master/Dockerfile
 

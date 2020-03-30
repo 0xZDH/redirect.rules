@@ -22,7 +22,6 @@ import subprocess
 from datetime import datetime
 
 # Import modules
-# from core import dynamic, static, htaccess, support
 from core import support
 from core.source import Source
 
@@ -75,7 +74,7 @@ if __name__ == '__main__':
 
     # Build command line arguments
     parser = argparse.ArgumentParser(description="Dynamically generate redirect.rules file -- v{VERS}".format(VERS=__version__))
-    parser.add_argument('-d', '--domain', type=str, help='Destination URL for redirects.')
+    parser.add_argument('-d', '--destination', type=str, help='Destination URL for redirects.')
     parser.add_argument(
         '--exclude',
         type=str,
@@ -103,9 +102,9 @@ if __name__ == '__main__':
         sys.exit()
 
     # If we made it past the exclude-list, make sure
-    # the user provided a domain
-    if not args.domain:
-        print('[!]\tThe following arguments are required: -d/--domain')
+    # the user provided a destination
+    if not args.destination:
+        print('[!]\tThe following arguments are required: -d/--destination')
         sys.exit()
 
 
@@ -174,7 +173,7 @@ if __name__ == '__main__':
 
     # If we skip @curi0usJack's file, we need to add a few lines...
     else:
-        WORKINGFILE.write("\tDefine REDIR_TARGET %s\n\n" % args.domain)
+        WORKINGFILE.write("\tDefine REDIR_TARGET %s\n\n" % args.destination)
         WORKINGFILE.write("\tRewriteEngine On\n")
         WORKINGFILE.write("\tRewriteOptions Inherit\n\n")
 

@@ -12,7 +12,8 @@ This tool dynamically generates a redirect.rules file that will redirect Sandbox
 
 ### Usage
 ```
-usage: redirect_rules.py [-h] [-d DOMAIN] [--exclude EXCLUDE [EXCLUDE ...]]
+usage: redirect_rules.py [-h] [-d DESTINATION]
+                         [--exclude EXCLUDE [EXCLUDE ...]]
                          [--exclude-file EXCLUDE_FILE] [--exclude-list]
                          [--verbose]
 
@@ -20,7 +21,7 @@ Dynamically generate redirect.rules file -- v1.2
 
 optional arguments:
   -h, --help            show this help message and exit
-  -d DOMAIN, --domain DOMAIN
+  -d DESTINATION, --destination DESTINATION
                         Destination URL for redirects.
   --exclude EXCLUDE [EXCLUDE ...]
                         Pass in one or more data sources and/or explicit
@@ -121,6 +122,30 @@ Example exclusion usage - Exclude Tor, Microsoft Azure, and an explicit CIDR:
 ### Requirements
 ```
 pip3 install -r requirements.txt
+```
+
+### Docker
+```
+# Build docker
+  docker build --tag=redirect_rules .
+
+# Run docker attaching /tmp
+  docker run --rm -v /tmp:/tmp redirect_rules -d test.com
+
+# Run docker attaching current directory
+  docker run --rm -v $(pwd):/tmp redirect_rules -d test.com
+
+# Once the run completes, the `redirect.rules` file will be located in the directory attached to the docker run.
+```
+
+#### Run With Exclusoins
+```
+# Run with exclude list:
+  docker run --rm -v /tmp:/tmp redirect_rules -d test.com --exclude aws azure 35.0.0.0/8
+
+# Run with an exclude file:
+  docker cp exclude.txt <CONTAINER>:/app/exclude.txt
+  docker run --rm -v /tmp:/tmp redirect_rules -d test.com --exclude-file exclude.txt
 ```
 
 ### Acknowledgements
