@@ -1,6 +1,12 @@
 *.pyc
 .DS_Store
 __pycache__
-data/*.pyc
-data/.DS_Store
-data/__pycache__
+core/*.pyc
+core/.DS_Store
+core/__pycache__
+core/static/*.pyc
+core/static/.DS_Store
+core/static/__pycache__
+core/sources/*.pyc
+core/sources/.DS_Store
+core/sources/__pycache__
