@@ -69,7 +69,7 @@ class Tor(Base):
                 ip = re.sub('\.[0-9]{1,3}/(2[456789]|30)', '.0/24', ip)
 
                 # Check if the current IP/CIDR has been seen
-                if ip not in self.ip_list:
+                if ip not in self.ip_list and ip != '':
                     self.workingfile.write(REWRITE['COND_IP'].format(IP=ip))
                     self.ip_list.append(ip)  # Keep track of all things added
                     count += 1

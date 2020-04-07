@@ -159,9 +159,14 @@ class Office365(Base):
                 # If we have URLs, lets document them
                 if 'urls' in network.keys():
                     for url in network['urls']:
+
+                        # Fix wildcard URL's to work with regex
+                        if url.startswith('*'):
+                            url = '.' + url
+
                         url = '^%s$' % url  # Add regex style to host
 
-                        if url not in self.host_list:
+                        if url not in self.host_list and url != '':
                             self.workingfile.write(REWRITE['COND_HOST'].format(HOSTNAME=url))
                             self.host_list.append(url)
                             count_host += 1
@@ -179,7 +184,7 @@ class Office365(Base):
                             ip = re.sub('\.[0-9]{1,3}/(2[456789]|30)', '.0/24', ip)
 
                             # Check if the current IP/CIDR has been seen
-                            if ip not in self.ip_list:
+                            if ip not in self.ip_list and ip != '':
                                 self.workingfile.write(REWRITE['COND_IP'].format(IP=ip))
                                 self.ip_list.append(ip)  # Keep track of all things added
                                 count_ip += 1

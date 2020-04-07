@@ -43,7 +43,7 @@ class UserAgents(Base):
         for source in static_agents.keys():
             self.workingfile.write("\n\t# Source: %s\n" % source)
             for agent in static_agents[source]:
-                if agent not in self.agent_list:
+                if agent not in self.agent_list and agent != '':
                     self.workingfile.write(REWRITE['COND_AGENT'].format(AGENT=agent))
                     self.agent_list.append(agent)  # Keep track of all things added
                     count += 1

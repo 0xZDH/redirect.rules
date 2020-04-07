@@ -70,7 +70,7 @@ class RADB(Base):
                 ip = re.sub('\.[0-9]{1,3}/(2[456789]|30)', '.0/24', ip)
 
                 # Check if the current IP/CIDR has been seen
-                if ip not in self.ip_list:
+                if ip not in self.ip_list and ip != '':
                     self.workingfile.write(REWRITE['COND_IP'].format(IP=ip))
                     self.ip_list.append(ip)  # Keep track of all things added
                     count += 1
@@ -129,8 +129,6 @@ class BGPView(Base):
         return asn_data.json()
 
 
-
-
     def _process_source(self):
         # Individual Company ASNs
         #   -- @curi0usJack and @violentlydave
@@ -160,7 +158,7 @@ class BGPView(Base):
                     ip = re.sub('\.[0-9]{1,3}/(2[456789]|30)', '.0/24', ip)
 
                     # Check if the current IP/CIDR has been seen
-                    if ip not in self.ip_list:
+                    if ip not in self.ip_list and ip != '':
                         self.workingfile.write(REWRITE['COND_IP'].format(IP=ip))
                         self.ip_list.append(ip)  # Keep track of all things added
                         count += 1
