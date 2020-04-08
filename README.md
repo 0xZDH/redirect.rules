@@ -10,6 +10,22 @@ Code architecture based on:
 
 This tool dynamically generates a redirect.rules file that will redirect Sandbox environments away from our payload hosting/C2 servers.
 
+### Requirements
+Install the required Python modules:
+```
+pip3 install -r requirements.txt
+```
+
+Install the 'whois' tool:
+```
+sudo apt install -y whois
+```
+
+Enable 'mod_rewrite' for Apache:
+```
+sudo a2enmod rewrite
+```
+
 ### Usage
 ```
 usage: redirect_rules.py [-h] [-d DESTINATION]
@@ -118,11 +134,6 @@ Example exclusion usage - Exclude Tor, Microsoft Azure, and an explicit CIDR:
 ```
 
 > All static data is stored within the core/data/ directory in .py files as Python objects. If you need to remove an ASN/User-Agent/IP/etc. from a static list, open the corresponding Python file and comment out what you no longer require. If you need to add anything, follow the :format: at the top of the Python data file (if present).
-
-### Requirements
-```
-pip3 install -r requirements.txt
-```
 
 ### Docker
 ```
