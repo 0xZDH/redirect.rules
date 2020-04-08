@@ -17,13 +17,20 @@ import os
 import re
 import sys
 import time
+import shutil
 import argparse
 import subprocess
 from datetime import datetime
 
 # Import modules
-from core import support
-from core.source import Source
+try:
+    from core import support
+    from core.source import Source
+
+except (ModuleNotFoundError, ImportError) as e:
+    print('[!]\tMissing Python module:')
+    print('\t%s' % e)
+    sys.exit()
 
 
 __version__ = '1.2'
@@ -94,6 +101,20 @@ if __name__ == '__main__':
     # *nix required for subprocess commands like `grep` and `sed`
     if os.name != 'posix':
         print('[!]\tPlease run this script on a *nix based system.')
+        sys.exit()
+
+    # Exit the script if the `whois` tool is not installed to prevent silent failures
+    # during ASN collection
+    # shutil.which() requires Python3.3+
+    if sys.version_info >= (3, 3):
+        if not shutil.which('whois'):
+            print('[!]\tThe `whois` tool does not appear to be installed on your system.')
+            print('\tInstall command: `sudo apt install -y whois`')
+            sys.exit()
+
+    # Exit the script if we are below Python3.3
+    else:
+        print('[!]\tPython3.3+ is required to run this script.')
         sys.exit()
 
     # Print the exclusion list and exit
