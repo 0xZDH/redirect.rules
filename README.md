@@ -12,14 +12,14 @@ This tool dynamically generates a redirect.rules file that will redirect Sandbox
 
 ### Requirements
 ```bash
-#    Install the required Python dependencies
-pip3 install -r requirements.txt
+# Install the required Python dependencies
+  pip3 install -r requirements.txt
 
-#    Install the 'whois' tool
-sudo apt install -y whois
+# Install the 'whois' tool
+  sudo apt install -y whois
 
-#    Enable 'mod_rewrite' for Apache
-sudo a2enmod rewrite
+# Enable 'mod_rewrite' for Apache
+  sudo a2enmod rewrite
 ```
 
 Included is a setup.sh script that will automate the installation of all required dependencies:
@@ -137,7 +137,7 @@ Example exclusion usage - Exclude Tor, Microsoft Azure, and an explicit CIDR:
 > All static data is stored within the core/data/ directory in .py files as Python objects. If you need to remove an ASN/User-Agent/IP/etc. from a static list, open the corresponding Python file and comment out what you no longer require. If you need to add anything, follow the :format: at the top of the Python data file (if present).
 
 ### Docker
-```
+```bash
 # Build docker
   docker build --tag=redirect_rules .
 
@@ -152,7 +152,7 @@ Example exclusion usage - Exclude Tor, Microsoft Azure, and an explicit CIDR:
 ```
 
 #### Run With Exclusoins
-```
+```bash
 # Run with exclude list:
   docker run --rm -v /tmp:/tmp redirect_rules -d test.com --exclude aws azure 35.0.0.0/8
 
