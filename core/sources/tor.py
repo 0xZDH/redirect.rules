@@ -52,8 +52,11 @@ class Tor(Base):
 
 
     def _process_source(self):
-        # Get the source data
-        tor_ips = self._get_source()
+        try:
+            # Get the source data
+            tor_ips = self._get_source()
+        except:
+            return self.ip_list
 
         count = 0
         for line in tor_ips:

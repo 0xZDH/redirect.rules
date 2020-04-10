@@ -65,8 +65,11 @@ class Azure(Base):
 
 
     def _process_source(self):
-        # Get the source data
-        azure_subnets = self._get_source()
+        try:
+            # Get the source data
+            azure_subnets = self._get_source()
+        except:
+            return self.ip_list
 
         count = 0
         for subnet in azure_subnets:
@@ -138,8 +141,11 @@ class Office365(Base):
 
 
     def _process_source(self):
-        # Get the source data
-        o365_networks = self._get_source()
+        try:
+            # Get the source data
+            o365_networks = self._get_source()
+        except:
+            return (self.ip_list, self.host_list)
 
         # Since this returns a JSON object with both URLs and IPs,
         # lets handle accordingly

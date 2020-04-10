@@ -142,8 +142,11 @@ class BGPView(Base):
 
             asn = asn.split('_')
 
-            # Get the source data
-            asn_data = self._get_source(asn)
+            try:
+                # Get the source data
+                asn_data = self._get_source(asn)
+            except:
+                continue
 
             try:
                 count = 0

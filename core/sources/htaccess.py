@@ -54,8 +54,11 @@ class HTAccess(Base):
 
 
     def _process_source(self):
-        # Get the source data
-        htaccess_file = self._get_source()
+        try:
+            # Get the source data
+            htaccess_file = self._get_source()
+        except:
+            return (self.ip_list, self.agent_list)
 
         print("[*]\tWriting @curi0usJack's redirect rules...")
 
@@ -119,6 +122,11 @@ class HTAccess(Base):
             # Now we need cross reference our exclude list and the keys...
             if all(x not in self.args.exclude for x in group.split(',')):
                 for line in file_groups[group]:
+
+                    # Handle one-off rule that points to 'fortinet'
+                    if 'http://www.fortinet.com/?' in line:
+                        line = re.sub('http://www.fortinet.com/\? +', '%{REQUEST_SCHEME}://${REDIR_TARGET}\t', line)
+
                     self.workingfile.write(line + '\n')
 
                     # Check if line is a RewriteCond

@@ -11,19 +11,20 @@ Code architecture based on:
 This tool dynamically generates a redirect.rules file that will redirect Sandbox environments away from our payload hosting/C2 servers.
 
 ### Requirements
-Install the required Python modules:
-```
+```bash
+#    Install the required Python dependencies
 pip3 install -r requirements.txt
-```
 
-Install the 'whois' tool:
-```
+#    Install the 'whois' tool
 sudo apt install -y whois
+
+#    Enable 'mod_rewrite' for Apache
+sudo a2enmod rewrite
 ```
 
-Enable 'mod_rewrite' for Apache:
+Included is a setup.sh script that will automate the installation of all required dependencies:
 ```
-sudo a2enmod rewrite
+sudo ./setup.sh
 ```
 
 ### Usage
@@ -33,7 +34,7 @@ usage: redirect_rules.py [-h] [-d DESTINATION]
                          [--exclude-file EXCLUDE_FILE] [--exclude-list]
                          [--verbose]
 
-Dynamically generate redirect.rules file -- v1.2
+Dynamically generate redirect.rules file -- v1.2.1
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -59,7 +60,7 @@ optional arguments:
 
     ----------------------------------
       Redirect Rules Generation Tool
-                   v1.2
+                  v1.2.1
     ----------------------------------
 
 [*]     Pulling @curi0usJack's redirect rules...

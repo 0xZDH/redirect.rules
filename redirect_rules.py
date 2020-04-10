@@ -33,7 +33,7 @@ except (ModuleNotFoundError, ImportError) as e:
     sys.exit()
 
 
-__version__ = '1.2'
+__version__ = '1.2.1'
 
 ## Global files
 LOGFILE_NAME     = '/tmp/redirect_logfile'
@@ -132,7 +132,7 @@ if __name__ == '__main__':
     print('''
     ----------------------------------
       Redirect Rules Generation Tool
-                   v{VERS}
+                  v{VERS}
     ----------------------------------
     '''.format(VERS=__version__))
 
@@ -247,7 +247,7 @@ if __name__ == '__main__':
     #> -----------------------------------------------------------------------------
     # Add AWS IPs: https://ip-ranges.amazonaws.com/ip-ranges.json
     # __dynamic__
-    if all(x not in args.exclude for x in ['aws', 'dynamic']):  # Exclude keywords
+    if all(x not in args.exclude for x in ['amazon', 'aws', 'dynamic']):  # Exclude keywords
         source = Source(
             'aws',
             [  # Params object
@@ -371,13 +371,35 @@ if __name__ == '__main__':
 
 
     #> -----------------------------------------------------------------------------
-    # Rule clean up
-    # Keep in main file since we will run every time
-    print("\n[*]\tPerforming rule de-duplication clean up...")
+    # Rule clean up and file finalization
+
+    # Now that we have written the sink-hole rules, let's add some example rules for
+    # the user to reference/use for file/path handling and a catch-all redirection
+
+    # Handle redirection of a file/path to its final file/path destination
+    WORKINGFILE.write("\n\n\t# Redirect a file/path to a target backend file/path\n")
+    WORKINGFILE.write("\t# -> Example: Redirect displayed path to raw path to grab 'example.zip'\n")
+    WORKINGFILE.write("\t# -> Note: This should come after all IP/Host/User-Agent blacklisting\n\n")
+    WORKINGFILE.write("\t# RewriteRule\t\t\t\t^/test/files/example.zip(.*)$\t\t/example.zip\t[L,R=302]\n\n")
+
+    # Handle redirection for a file/path to another server
+    WORKINGFILE.write("\n\t# Redirect and proxy a file/path to another system's file/path\n")
+    WORKINGFILE.write("\t# -> Example: Redirect and proxy displayed path to another system via the same path\n")
+    WORKINGFILE.write("\t# -> Note: You can also specify the URI explicitly as needed\n")
+    WORKINGFILE.write("\t# -> Note: This should come after all IP/Host/User-Agent blacklisting\n\n")
+    WORKINGFILE.write("\t# RewriteRule\t\t\t\t^/test/files/example.zip(.*)$\t\thttps://192.168.10.10%{REQUEST_URI}\t[P]\n\n")
+
+    # Create a final, catch-all redirection
+    WORKINGFILE.write("\n\t# Catch-all redirect\n")
+    WORKINGFILE.write("\t# -> Example: Catch anything other than '/example.zip' and redirect\n")
+    WORKINGFILE.write("\t# -> Note: This should be the last item in the redirect.rules file as a final catch-all\n\n")
+    WORKINGFILE.write("\t# RewriteRule\t\t\t\t^((?!\\/example\\.zip).)*$\t\t%{REQUEST_SCHEME}://${REDIR_TARGET}\t[L,R=302]\n")
+
+    print("\n[+]\tFile/Path redirection and catch-all examples commented at bottom of file.\n")
 
     # Add a note at the end of the rules file of what was excluded...
     if len(args.exclude) > 0:
-        WORKINGFILE.write("\n\t#\n")
+        WORKINGFILE.write("\n\n\t#\n")
         if any(x in KEYWORDS or re.search('^AS',x) for x in args.exclude):
             WORKINGFILE.write("\t# The following data groups were excluded:\n")
             for item in args.exclude:
@@ -391,6 +413,8 @@ if __name__ == '__main__':
                     WORKINGFILE.write("\t#\t%s\n" % item)
 
     WORKINGFILE.close()  # Close out working file before modding it via bash
+
+    print("\n[*]\tPerforming rule de-duplication clean up...")
 
     # Let's build our CIDR map to identify redundant CIDRs
     tmp_ip_list   = []
