@@ -32,9 +32,13 @@ sudo ./setup.sh
 usage: redirect_rules.py [-h] [-d DESTINATION]
                          [--exclude EXCLUDE [EXCLUDE ...]]
                          [--exclude-file EXCLUDE_FILE] [--exclude-list]
+                         [--ip-file IP_FILE [IP_FILE ...]]
+                         [--asn-file ASN_FILE [ASN_FILE ...]]
+                         [--hostname-file HOSTNAME_FILE [HOSTNAME_FILE ...]]
+                         [--useragent-file USERAGENT_FILE [USERAGENT_FILE ...]]
                          [--verbose]
 
-Dynamically generate redirect.rules file -- v1.2.1
+Dynamically generate redirect.rules file -- v1.2.2
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -51,7 +55,18 @@ optional arguments:
                         File containing items/group keywords to exclude (line
                         separated).
   --exclude-list        List all possible exclusions.
+  --ip-file IP_FILE [IP_FILE ...]
+                        Provide one or more IP files to use as source data.
+  --asn-file ASN_FILE [ASN_FILE ...]
+                        Provide one or more ASN files to use as source data.
+  --hostname-file HOSTNAME_FILE [HOSTNAME_FILE ...]
+                        Provide one or more Hostname files to use as source
+                        data.
+  --useragent-file USERAGENT_FILE [USERAGENT_FILE ...]
+                        Provide one or more User-Agent files to use as source
+                        data.
   --verbose             Enable verbose output.
+
 ```
 
 #### Example Run
@@ -60,13 +75,14 @@ optional arguments:
 
     ----------------------------------
       Redirect Rules Generation Tool
-                  v1.2.1
+                  v1.2.2
     ----------------------------------
 
 [*]     Pulling @curi0usJack's redirect rules...
 [*]     Writing @curi0usJack's redirect rules...
 [*]     Adding conditions for bad User-Agents...
-[*]     Adding Hostnames and IPs obtained via Malware Kit...
+[*]     Adding static IPs obtained via Malware Kit's and other sources...
+[*]     Adding static Hostnames obtained via Malware Kit's and other sources...
 [*]     Pulling TOR exit node list...
 [*]     Pulling AWS IP/Network list...
 [*]     Pulling Google Cloud IP/network list...

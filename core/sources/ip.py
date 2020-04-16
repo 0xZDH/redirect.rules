@@ -1,57 +1,58 @@
 #!/usr/bin/env python3
 
+import os
 import re
 from datetime import datetime
 
 # Import static data
-from core.static import ips, hostnames
 from core.support import REWRITE
 
 # Import parent class
 from core.base import Base
 
 
-class MalwareKit(Base):
+class IP(Base):
     """
-    Malware Kit class to write static list of hostnames and IPs that were
-    obtained via Malware Kits located in core/static/agents.py
+    Class to write static list of IPs that were obtained
+    via Malware Kits and other sources located in core/static/ips.txt
 
     :param workingfile: Open file object where rules are written
     :param ip_list:     List of seen IPs
-    :param host_list:   List of seen Hosts
     """
 
-    def __init__(self, workingfile, ip_list, host_list):
+    def __init__(self, workingfile, ip_list):
         self.workingfile = workingfile
         self.ip_list     = ip_list
-        self.host_list   = host_list
 
         self.return_data = self._process_source()
 
 
+    def _get_source(self):
+        # Read in static source file from static/ dir
+        ips = []
+        pwd = os.path.dirname(os.path.realpath(__file__))
+        with open(pwd + '/../static/ips.txt', 'r') as _file:
+            for line in _file.readlines():
+                line = line.strip()
+                if line != '' and not line.startswith('#'):
+                    ips.append(line)
+
+        return ips
+
+
     def _process_source(self):
-        mk_ips = ips.malware_kit_ips
-        mk_hostnames = hostnames.malware_kit_hostnames
+        try:
+            # Get the source data
+            ips = self._get_source()
+        except:
+            return self.ip_list
 
-        # Add hostnames and IPs obtained via Malware Kit
-        print("[*]\tAdding Hostnames and IPs obtained via Malware Kit...")
-        self.workingfile.write("\n\n\t# Hostnames/IPs obtained via Malware Kit: %s\n" % datetime.now().strftime("%Y%m%d-%H:%M:%S"))
+        # Add IPs obtained via Malware Kit's and other sources
+        print("[*]\tAdding static IPs obtained via Malware Kit's and other sources...")
+        self.workingfile.write("\n\n\t# IPs obtained via Malware Kit's and other sources: %s\n" % datetime.now().strftime("%Y%m%d-%H:%M:%S"))
 
-        # Process hostnames
-        self.workingfile.write("\n\t# Hostnames\n")
         count = 0
-        for host in mk_hostnames:
-            if host not in self.host_list and host != '':
-                self.workingfile.write(REWRITE['COND_HOST'].format(HOSTNAME=host))
-                self.host_list.append(host)  # Keep track of all things added
-                count += 1
-
-        self.workingfile.write("\t# Hostname Count: %d\n" % count)
-
-        # Process IPs
-        self.workingfile.write("\n\t# IPs\n")
-        count = 0
-        for ip in mk_ips:
+        for ip in ips:
             # Convert /31 and /32 CIDRs to single IP
             ip = re.sub('/3[12]', '', ip)
 
@@ -75,4 +76,4 @@ class MalwareKit(Base):
             self.workingfile.write(REWRITE['END_COND'])
             self.workingfile.write(REWRITE['RULE'])
 
-        return (self.ip_list, self.host_list)
+        return self.ip_list

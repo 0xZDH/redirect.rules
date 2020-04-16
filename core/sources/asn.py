@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 import re
 import requests
 import subprocess
@@ -10,7 +11,6 @@ from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 # Import static data
-from core.static import asns
 from core.support import REWRITE
 
 # Import parent class
@@ -34,11 +34,26 @@ class RADB(Base):
         self.return_data = self._process_source()
 
 
+    def _get_source(self):
+        # Read in static source file from static/ dir
+        asn_list = []
+        pwd = os.path.dirname(os.path.realpath(__file__))
+        with open(pwd + '/../static/asns.txt', 'r') as _file:
+            for line in _file.readlines():
+                line = line.strip()
+                if line != '' and not line.startswith('#'):
+                    asn_list.append(line)
+
+        return asn_list
+
+
     def _process_source(self):
-        # Individual Company ASNs
-        #   -- @curi0usJack and @violentlydave
-        #   :Format: CompanyName_AS12345
-        asn_list = asns.asns
+        try:
+            # Get the source data
+            asn_list = self._get_source()
+        except:
+            return self.ip_list
+
         asn_list = [x.upper() for x in asn_list]
 
         for asn in asn_list:
@@ -109,15 +124,19 @@ class BGPView(Base):
         self.return_data = self._process_source()
 
 
-    def _get_source(self, asn):
-        # Write comments to working file
-        print("[*]\tPulling %s -- %s via BGPView..." % (asn[1], asn[0]))
-        self.workingfile.write("\n\n\t# Live copy of %s ips based on BGPView ASN %s: %s\n" % (
-            asn[0],
-            asn[1],
-            datetime.now().strftime("%Y%m%d-%H:%M:%S")
-        ))
+    def _get_source(self):
+        # Read in static source file from static/ dir
+        asn_list = []
+        with open('../static/asns.txt', 'r') as _file:
+            for line in _file.readlines():
+                line = line.strip()
+                if line != '' and not line.startswith('#'):
+                    asn_list.append(line)
 
+        return asn_list
+
+
+    def _get_data(self, asn):
         asn_data = requests.get(
             'https://api.bgpview.io/asn/%s/prefixes' % asn[1],
             headers=self.headers,
@@ -130,10 +149,12 @@ class BGPView(Base):
 
 
     def _process_source(self):
-        # Individual Company ASNs
-        #   -- @curi0usJack and @violentlydave
-        #   :Format: CompanyName_AS12345
-        asn_list = asns.asns
+        try:
+            # Get the source data
+            asn_list = self._get_source()
+        except:
+            return self.ip_list
+
         asn_list = [x.upper() for x in asn_list]
 
         for asn in asn_list:
@@ -144,9 +165,17 @@ class BGPView(Base):
 
             try:
                 # Get the source data
-                asn_data = self._get_source(asn)
+                asn_data = self._get_data(asn)
             except:
                 continue
+
+            # Write comments to working file
+            print("[*]\tPulling %s -- %s via BGPView..." % (asn[1], asn[0]))
+            self.workingfile.write("\n\n\t# Live copy of %s ips based on BGPView ASN %s: %s\n" % (
+                asn[0],
+                asn[1],
+                datetime.now().strftime("%Y%m%d-%H:%M:%S")
+            ))
 
             try:
                 count = 0

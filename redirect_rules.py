@@ -33,7 +33,7 @@ except (ModuleNotFoundError, ImportError) as e:
     sys.exit()
 
 
-__version__ = '1.2.1'
+__version__ = '1.2.2'
 
 ## Global files
 LOGFILE_NAME     = '/tmp/redirect_logfile'
@@ -55,15 +55,18 @@ FULL_AGENT_LIST = []  # De-dupe agents
 ## Exclusion Keywords
 # This will allow us to identify explicit exclusions
 KEYWORDS = [
-    'dynamic',      # All dynamic sources
+    # Static sources
     'static',       # All static sources
-    'htaccess',
+    'htaccess',     # Exclude @curi0usJack's .htaccess gist
     'user-agents',
-    'malwarekit',
+    'hostnames',
+    'ips',
     'asn',          # Exclude all ASN sources
     'radb',
     'bgpview',
     'misc',
+    # Dynamic sources
+    'dynamic',      # All dynamic sources
     'tor',
     'amazon',       # Exclude all Amazon sources
     'aws',
@@ -91,9 +94,14 @@ if __name__ == '__main__':
         'Keywords and explicit strings should be space delimited. ' +
         'Example Usage: `--exclude agents radb 35.0.0.0/8`'
     )
-    parser.add_argument('--exclude-file', type=str, help='File containing items/group keywords to exclude (line separated).')
-    parser.add_argument('--exclude-list', action='store_true', help='List all possible exclusions.')
-    parser.add_argument('--verbose',      action='store_true', help='Enable verbose output.')
+    parser.add_argument('--exclude-file',   type=str, help='File containing items/keywords to exclude (line separated).')
+    parser.add_argument('--exclude-list',   action='store_true', help='List possible keyword exclusions.')
+    # Support for passing in extra source files
+    parser.add_argument('--ip-file',        type=str, nargs='+', help='Provide one or more external IP files to use as source data.')
+    parser.add_argument('--asn-file',       type=str, nargs='+', help='Provide one or more external ASN files to use as source data.')
+    parser.add_argument('--hostname-file',  type=str, nargs='+', help='Provide one or more external Hostname files to use as source data.')
+    parser.add_argument('--useragent-file', type=str, nargs='+', help='Provide one or more external User-Agent files to use as source data.')
+    parser.add_argument('--verbose',        action='store_true', help='Enable verbose output.')
     args = parser.parse_args()
 
 
@@ -165,7 +173,7 @@ if __name__ == '__main__':
     WORKINGFILE.write("\t# %s v%s to block AV Sandboxes - built: %s\n" % (__file__, __version__, datetime.now().strftime("%Y%m%d-%H:%M:%S")))
     WORKINGFILE.write("\t#\n\n")
 
-    # Add updated comments from @curi0usJack's .htaccess
+    # Add updated/modified comments from @curi0usJack's .htaccess
     WORKINGFILE.write("\t# Note: This currently requires Apache 2.4+\n")
     WORKINGFILE.write("\t#\n")
     WORKINGFILE.write("\t# Example Usage:\n")
@@ -200,9 +208,9 @@ if __name__ == '__main__':
 
 
     #> -----------------------------------------------------------------------------
-    # Add User-Agent list
+    # Add static User-Agent list
     # __static__
-    if all(x not in args.exclude for x in ['user-agents', 'static']):  # Exclude keywords
+    if all(x not in args.exclude for x in ['agents', 'user-agents', 'static']):  # Exclude keywords
         source = Source(
             'user-agents',
             [  # Params object
@@ -214,18 +222,31 @@ if __name__ == '__main__':
 
 
     #> -----------------------------------------------------------------------------
-    # Add hostnames and IPs obtained via Malware Kit
+    # Add static ips list
     # __static__
-    if all(x not in args.exclude for x in ['malwarekit', 'static']):  # Exclude keywords
+    if all(x not in args.exclude for x in ['ip', 'ips', 'static']):  # Exclude keywords
         source = Source(
-            'malwarekit',
+            'ips',
             [  # Params object
                 WORKINGFILE,
-                FULL_IP_LIST,
+                FULL_IP_LIST
+            ]
+        )
+        FULL_IP_LIST = source.process_data()
+
+
+    #> -----------------------------------------------------------------------------
+    # Add static hostnames list
+    # __static__
+    if all(x not in args.exclude for x in ['hosts', 'hostnames', 'static']):  # Exclude keywords
+        source = Source(
+            'hostnames',
+            [  # Params object
+                WORKINGFILE,
                 FULL_HOST_LIST
             ]
         )
-        (FULL_IP_LIST, FULL_HOST_LIST) = source.process_data()
+        FULL_HOST_LIST = source.process_data()
 
 
     #> -----------------------------------------------------------------------------
@@ -357,7 +378,7 @@ if __name__ == '__main__':
 
 
     #> -----------------------------------------------------------------------------
-    # Misc sources -- see data/misc.py for reasons
+    # Misc sources -- see core/static/misc.txt for more information
     # __static__
     if all(x not in args.exclude for x in ['misc', 'static']):
         source = Source(
@@ -368,6 +389,74 @@ if __name__ == '__main__':
             ]
         )
         FULL_IP_LIST = source.process_data()
+
+
+    #> -----------------------------------------------------------------------------
+    # External sources -- IP file(s)
+    if args.ip_file:
+        for _file in args.ip_file:
+            # Make sure the file is valid
+            if os.path.isfile(_file):
+                source = Source(
+                    'ip-file',
+                    [  # Params object
+                        WORKINGFILE,
+                        _file,
+                        FULL_IP_LIST
+                    ]
+                )
+                FULL_IP_LIST = source.process_data()
+
+
+    #> -----------------------------------------------------------------------------
+    # External sources -- Hostname file(s)
+    if args.hostname_file:
+        for _file in args.hostname_file:
+            # Make sure the file is valid
+            if os.path.isfile(_file):
+                source = Source(
+                    'hostname-file',
+                    [  # Params object
+                        WORKINGFILE,
+                        _file,
+                        FULL_HOST_LIST
+                    ]
+                )
+                FULL_HOST_LIST = source.process_data()
+
+
+    #> -----------------------------------------------------------------------------
+    # External sources -- User-Agents file(s)
+    if args.useragent_file:
+        for _file in args.useragent_file:
+            # Make sure the file is valid
+            if os.path.isfile(_file):
+                source = Source(
+                    'useragent-file',
+                    [  # Params object
+                        WORKINGFILE,
+                        _file,
+                        FULL_AGENT_LIST
+                    ]
+                )
+                FULL_AGENT_LIST = source.process_data()
+
+
+    #> -----------------------------------------------------------------------------
+    # External sources -- ASN file(s)
+    if args.asn_file:
+        for _file in args.asn_file:
+            # Make sure the file is valid
+            if os.path.isfile(_file):
+                source = Source(
+                    'asn-file',
+                    [  # Params object
+                        WORKINGFILE,
+                        _file,
+                        FULL_IP_LIST
+                    ]
+                )
+                FULL_IP_LIST = source.process_data()
 
 
     #> -----------------------------------------------------------------------------
