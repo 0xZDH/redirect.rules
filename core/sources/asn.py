@@ -127,7 +127,8 @@ class BGPView(Base):
     def _get_source(self):
         # Read in static source file from static/ dir
         asn_list = []
-        with open('../static/asns.txt', 'r') as _file:
+        pwd = os.path.dirname(os.path.realpath(__file__))
+        with open(pwd + '/../static/asns.txt', 'r') as _file:
             for line in _file.readlines():
                 line = line.strip()
                 if line != '' and not line.startswith('#'):

@@ -130,7 +130,7 @@ class Office365(Base):
         self.workingfile.write("\n\n\t# Adding Microsoft Office 365 IP/Host space: %s\n" % datetime.now().strftime("%Y%m%d-%H:%M:%S"))
 
         o365_networks = requests.get(
-            'https://endpoints.office.com/endpoints/worldwide?clientrequestid=b10c5ed1-bad1-445f-b386-b919946339a7',
+            'https://endpoints.office.com/endpoints/worldwide?clientrequestid=b10c5ed1-bad1-445f-b386-b919976789a7',
             headers=self.headers,
             timeout=self.timeout,
             verify=False
