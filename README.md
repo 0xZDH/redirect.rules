@@ -102,14 +102,17 @@ optional arguments:
 redirect_rules.py executed in 59.55 seconds.
 ```
 
-Example exclusion usage - Exclude Tor, Microsoft Azure, and an explicit CIDR:
-```
-> python3 redirect_rules.py -d test.com --exclude tor azure 35.0.0.0/8
-```
+#### Example Usage
+```bash
+# Example exclusion usage - Exclude Tor, Microsoft Azure, and an explicit CIDR:
+  python3 redirect_rules.py -d test.com --exclude tor azure 35.0.0.0/8
 
-Example external source file usage - Include external IP list for redirection:
-```
-> python3 redirect_rules.py -d test.com --ip-file new_ip_list.txt
+# Example external source file usage - Include external IP list for redirection:
+  python3 redirect_rules.py -d test.com --ip-file new_ip_list.txt
+
+# Example usage to generate rules for a single external source
+# This excludes all sources provided by redirect_rules and only uses the external source:
+  python3 redirect_rules.py -d test.com --exclude htaccess dynamic static --ip-file new_ip_list.txt
 ```
 
 #### Exclusion List
