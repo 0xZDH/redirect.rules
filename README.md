@@ -66,7 +66,6 @@ optional arguments:
                         Provide one or more User-Agent files to use as source
                         data.
   --verbose             Enable verbose output.
-
 ```
 
 #### Example Run
@@ -108,6 +107,11 @@ Example exclusion usage - Exclude Tor, Microsoft Azure, and an explicit CIDR:
 > python3 redirect_rules.py -d test.com --exclude tor azure 35.0.0.0/8
 ```
 
+Example external source file usage - Include external IP list for redirection:
+```
+> python3 redirect_rules.py -d test.com --ip-file new_ip_list.txt
+```
+
 #### Exclusion List
 ```
 [+] Exclusion List:
@@ -127,7 +131,8 @@ Example exclusion usage - Exclude Tor, Microsoft Azure, and an explicit CIDR:
                 static          # Exclude all static sources
                 htaccess        # Exclude @curi0usJack's .htaccess file
                 user-agents     # Exclude User-Agents file
-                malwarekit      # Exclude data obtained via Malware Kit
+                ips             # Exclude IPs obtained via Malware Kit's and other sources
+                hostnames       # Exclude Hostnames obtained via Malware Kit's and other sources
                 asn             # Exclude all ASN data
                 radb            # Exclude ASN data from RADB
                 bgpview         # Exclude ASN data from BGPView
