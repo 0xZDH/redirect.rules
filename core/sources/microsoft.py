@@ -65,8 +65,11 @@ class Azure(Base):
 
 
     def _process_source(self):
-        # Get the source data
-        azure_subnets = self._get_source()
+        try:
+            # Get the source data
+            azure_subnets = self._get_source()
+        except:
+            return self.ip_list
 
         count = 0
         for subnet in azure_subnets:
@@ -127,7 +130,7 @@ class Office365(Base):
         self.workingfile.write("\n\n\t# Adding Microsoft Office 365 IP/Host space: %s\n" % datetime.now().strftime("%Y%m%d-%H:%M:%S"))
 
         o365_networks = requests.get(
-            'https://endpoints.office.com/endpoints/worldwide?clientrequestid=b10c5ed1-bad1-445f-b386-b919946339a7',
+            'https://endpoints.office.com/endpoints/worldwide?clientrequestid=b10c5ed1-bad1-445f-b386-b919976789a7',
             headers=self.headers,
             timeout=self.timeout,
             verify=False
@@ -138,8 +141,11 @@ class Office365(Base):
 
 
     def _process_source(self):
-        # Get the source data
-        o365_networks = self._get_source()
+        try:
+            # Get the source data
+            o365_networks = self._get_source()
+        except:
+            return (self.ip_list, self.host_list)
 
         # Since this returns a JSON object with both URLs and IPs,
         # lets handle accordingly

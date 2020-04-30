@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
+import os
 import re
 from datetime import datetime
 
 # Import static data
-from core.static import misc
 from core.support import REWRITE
 
 # Import parent class
@@ -13,7 +13,7 @@ from core.base import Base
 
 class Misc(Base):
     """
-    Misc sources -- see data/misc.py for reasons
+    Misc sources -- see static/misc.txt for reasons
 
     :param workingfile: Open file object where rules are written
     :param ip_list:     List of seen IPs
@@ -26,11 +26,25 @@ class Misc(Base):
         self.return_data = self._process_source()
 
 
+    def _get_source(self):
+        # Read in static source file from static/ dir
+        misc_list = []
+        pwd = os.path.dirname(os.path.realpath(__file__))
+        with open(pwd + '/../static/misc.txt', 'r') as _file:
+            for line in _file.readlines():
+                line = line.strip()
+                if line != '' and not line.startswith('#'):
+                    misc_list.append(line)
+
+        return misc_list
+
+
     def _process_source(self):
-        # Misc sources (seen in phishing attempts/etc.)
-        #   -- @curi0usJack and @violentlydave
-        #   :Format: ipORnetwork-Ownername-Reason
-        misc_list = misc.misc
+        try:
+            # Get the source data
+            misc_list = self._get_source()
+        except:
+            return self.ip_list
 
         print("[*]\tAdding Miscellaneous Sources...")
         self.workingfile.write("\n\n\t# Misc Sources: %s\n" % datetime.now().strftime("%Y%m%d-%H:%M:%S"))

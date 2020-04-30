@@ -51,8 +51,11 @@ class OracleCloud(Base):
 
 
     def _process_source(self):
-        # Get the source data
-        oracle_networks = self._get_source()
+        try:
+            # Get the source data
+            oracle_networks = self._get_source()
+        except:
+            return self.ip_list
 
         count = 0
         for region in oracle_networks['regions']:

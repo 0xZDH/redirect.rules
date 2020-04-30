@@ -49,8 +49,11 @@ class GoogleCloud(Base):
 
 
     def _process_source(self):
-        # Get the source data
-        google_netblocks = self._get_source()
+        try:
+            # Get the source data
+            google_netblocks = self._get_source()
+        except:
+            return self.ip_list
 
         netblocks = []
         # Now split up the Answer

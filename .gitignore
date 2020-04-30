@@ -10,3 +10,4 @@ core/static/__pycache__
 core/sources/*.pyc
 core/sources/.DS_Store
 core/sources/__pycache__
+scripts/

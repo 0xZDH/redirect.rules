@@ -4,6 +4,7 @@
 #   https://github.com/0xdade/sephiroth/blob/master/providers/provider.py
 
 # Import source modules
+from core.sources.ip import IP
 from core.sources.tor import Tor
 from core.sources.asn import RADB, BGPView
 from core.sources.misc import Misc
@@ -11,12 +12,16 @@ from core.sources.amazon import AWS
 from core.sources.oracle import OracleCloud
 from core.sources.google import GoogleCloud
 from core.sources.htaccess import HTAccess
+from core.sources.hostname import Hostname
 from core.sources.microsoft import Azure, Office365
 from core.sources.useragents import UserAgents
-from core.sources.malwarekit import MalwareKit
+
+# Import module to read external sources
+from core.sources.external import IPFile, HostnameFile, UserAgentFile, ASNFile
 
 
 source_map = {
+	'ips':         IP,
 	'tor':         Tor,
 	'aws':         AWS,
 	'radb':        RADB,
@@ -24,11 +29,16 @@ source_map = {
 	'azure':       Azure,
 	'bgpview':     BGPView,
 	'htaccess':    HTAccess,
+	'hostnames':   Hostname,
 	'office365':   Office365,
-	'malwarekit':  MalwareKit,
 	'user-agents': UserAgents,
 	'oraclecloud': OracleCloud,
-	'googlecloud': GoogleCloud
+	'googlecloud': GoogleCloud,
+	# External sources
+	'ip-file':        IPFile,
+	'asn-file':       ASNFile,
+	'hostname-file':  HostnameFile,
+	'useragent-file': UserAgentFile
 }
 
 class Source(object):

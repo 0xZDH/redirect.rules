@@ -51,8 +51,11 @@ class AWS(Base):
 
 
     def _process_source(self):
-        # Get the source data
-        aws_ips = self._get_source()    
+        try:
+            # Get the source data
+            aws_ips = self._get_source()
+        except:
+            return self.ip_list
 
         count = 0
         for network in aws_ips['prefixes']:
