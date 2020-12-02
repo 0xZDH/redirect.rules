@@ -6,7 +6,8 @@ REWRITE = {
     'COND_HOST':  '\tRewriteCond\t\t\t\t%{{HTTP_HOST}}\t\t\t\t\t{HOSTNAME}\t[OR,NC]\n',
     'COND_AGENT': '\tRewriteCond\t\t\t\t%{{HTTP_USER_AGENT}}\t\t\t\t\t{AGENT}\t[OR,NC]\n',
     'END_COND':   '\tRewriteCond\t\t\t\texpr\t\t\t\t\t"-R \'192.168.250.250\'"\n',
-    'RULE':       '\tRewriteRule\t\t\t\t^.*$\t\t\t\t\t%{REQUEST_SCHEME}://${REDIR_TARGET}\t[L,R=302]\n'
+    ## Removed Request Scheme so we can force the protocol we want to use for our redirection
+    'RULE':       '\tRewriteRule\t\t\t\t^.*$\t\t\t\t\t${REDIR_TARGET}\t[L,R=302]\n'
 }
 
 def print_exclude_list():
