@@ -33,7 +33,7 @@ except (ModuleNotFoundError, ImportError) as e:
     sys.exit(1)
 
 
-__version__ = '1.2.2'
+__version__ = '1.2.3'
 
 ## Global files
 LOGFILE_NAME     = '/tmp/redirect_logfile'
@@ -585,4 +585,4 @@ if __name__ == '__main__':
     print("[+]\tRedirect rules file: %s" % WORKINGFILE_NAME)
 
     elapsed = time.perf_counter() - start
-    print("\n{__file__} executed in {elapsed:0.2f} seconds.")
+    print(f"\n{__file__} executed in {elapsed:0.2f} seconds.")
