@@ -1,4 +1,5 @@
 # redirect.rules
+
 Redirect Rules Generation Tool.
 
 This is a Python rewrite and expansion of:
@@ -10,7 +11,8 @@ Code architecture based on:
 
 This tool dynamically generates a redirect.rules file that will redirect Sandbox environments away from our payload hosting/C2 servers.
 
-### Requirements
+## Requirements
+
 ```bash
 # Install the required Python dependencies
   pip3 install -r requirements.txt
@@ -27,7 +29,8 @@ Included is a setup.sh script that will automate the installation of all require
 sudo ./setup.sh
 ```
 
-### Usage
+## Usage
+
 ```
 usage: redirect_rules.py [-h] [-d DESTINATION]
                          [--exclude EXCLUDE [EXCLUDE ...]]
@@ -43,7 +46,7 @@ Dynamically generate redirect.rules file -- v1.2.2
 optional arguments:
   -h, --help            show this help message and exit
   -d DESTINATION, --destination DESTINATION
-                        Destination URL for redirects.
+                        Destination for redirects (with the protocol, e.g., https://redirect.here/index.php).
   --exclude EXCLUDE [EXCLUDE ...]
                         Pass in one or more data sources and/or explicit
                         IP/Host/User-Agent's to exclude. Run the `--exclude-
@@ -70,7 +73,7 @@ optional arguments:
 
 #### Example Run
 ```
-> python3 redirect_rules.py -d test.com
+> python3 redirect_rules.py -d https://test.com
 
     ----------------------------------
       Redirect Rules Generation Tool
@@ -103,19 +106,21 @@ redirect_rules.py executed in 59.55 seconds.
 ```
 
 #### Example Usage
+
 ```bash
 # Example exclusion usage - Exclude Tor, Microsoft Azure, and an explicit CIDR:
-  python3 redirect_rules.py -d test.com --exclude tor azure 35.0.0.0/8
+  python3 redirect_rules.py -d https://test.com --exclude tor azure 35.0.0.0/8
 
 # Example external source file usage - Include external IP list for redirection:
-  python3 redirect_rules.py -d test.com --ip-file new_ip_list.txt
+  python3 redirect_rules.py -d https://test.com --ip-file new_ip_list.txt
 
 # Example usage to generate rules for a single external source
 # This excludes all sources provided by redirect_rules and only uses the external source:
-  python3 redirect_rules.py -d test.com --exclude htaccess dynamic static --ip-file new_ip_list.txt
+  python3 redirect_rules.py -d https://test.com --exclude htaccess dynamic static --ip-file new_ip_list.txt
 ```
 
 #### Exclusion List
+
 ```
 [+] Exclusion List:
     --------------
@@ -166,31 +171,33 @@ redirect_rules.py executed in 59.55 seconds.
   docker build --tag=redirect_rules .
 
 # Run docker attaching /tmp
-  docker run --rm -v /tmp:/tmp redirect_rules -d test.com
+  docker run --rm -v /tmp:/tmp redirect_rules -d https://test.com
 
 # Run docker attaching current directory
-  docker run --rm -v $(pwd):/tmp redirect_rules -d test.com
+  docker run --rm -v $(pwd):/tmp redirect_rules -d https://test.com
 
 # Once the run completes, the `redirect.rules` file will be located
 # in the directory attached to the docker run.
 ```
 
-#### Run With Exclusoins
+#### Run With Exclusions
 ```bash
 # Run with exclude list:
-  docker run --rm -v /tmp:/tmp redirect_rules -d test.com --exclude aws azure 35.0.0.0/8
+  docker run --rm -v /tmp:/tmp redirect_rules -d https://test.com --exclude aws azure 35.0.0.0/8
 
 # Run with an exclude file:
   docker cp exclude.txt <CONTAINER>:/app/exclude.txt
-  docker run --rm -v /tmp:/tmp redirect_rules -d test.com --exclude-file exclude.txt
+  docker run --rm -v /tmp:/tmp redirect_rules -d https://test.com --exclude-file exclude.txt
 ```
 
 ### Acknowledgements
+
 **@curi0usJack** - https://gist.github.com/curi0usJack/971385e8334e189d93a6cb4671238b10<br>
 **@violentlydave** - [mkhtaccess_red](https://github.com/violentlydave/mkhtaccess_red/)<br>
 **@0xdade** - [sephiroth](https://github.com/0xdade/sephiroth)
 
 ### TODO
+
 * Add better exception handling
 * Reorder groups by most likely to be seen
 * Sort IPs/Hosts/Agents in each grouping

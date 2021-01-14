@@ -30,10 +30,10 @@ try:
 except (ModuleNotFoundError, ImportError) as e:
     print('[!]\tMissing Python module:')
     print('\t%s' % e)
-    sys.exit()
+    sys.exit(1)
 
 
-__version__ = '1.2.2'
+__version__ = '1.2.3'
 
 ## Global files
 LOGFILE_NAME     = '/tmp/redirect_logfile'
@@ -79,12 +79,21 @@ KEYWORDS = [
     'oraclecloud'
 ]
 
+# URL Regex
+regex = re.compile(
+        r'^(?:http)s?://' # http:// or https://
+        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|' # domain...
+        r'localhost|' # localhost...
+        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})' # ...or ip
+        r'(?::\d+)?' # optional port
+        r'(?:/?|[/?]\S+)$', re.IGNORECASE)
+
 
 if __name__ == '__main__':
 
     # Build command line arguments
     parser = argparse.ArgumentParser(description="Dynamically generate redirect.rules file -- v{VERS}".format(VERS=__version__))
-    parser.add_argument('-d', '--destination', type=str, help='Destination URL for redirects.')
+    parser.add_argument('-d', '--destination', type=str, help='Destination for redirects (with the protocol, e.g., https://redirect.here/index.php).')
     parser.add_argument(
         '--exclude',
         type=str,
@@ -109,7 +118,7 @@ if __name__ == '__main__':
     # *nix required for subprocess commands like `grep` and `sed`
     if os.name != 'posix':
         print('[!]\tPlease run this script on a *nix based system.')
-        sys.exit()
+        sys.exit(1)
 
     # Exit the script if the `whois` tool is not installed to prevent silent failures
     # during ASN collection
@@ -118,12 +127,12 @@ if __name__ == '__main__':
         if not shutil.which('whois'):
             print('[!]\tThe `whois` tool does not appear to be installed on your system.')
             print('\tInstall command: `sudo apt install -y whois`')
-            sys.exit()
+            sys.exit(1)
 
     # Exit the script if we are below Python3.3
     else:
         print('[!]\tPython3.3+ is required to run this script.')
-        sys.exit()
+        sys.exit(1)
 
     # Print the exclusion list and exit
     if args.exclude_list:
@@ -132,10 +141,14 @@ if __name__ == '__main__':
 
     # If we made it past the exclude-list, make sure
     # the user provided a destination
-    if not args.destination:
+    if args.destination:
+        # Make sure this is a full URL
+        if not (re.match(regex, args.destination)):
+            print('[!]\t-d/--destination must include a full URL (e.g., http://example.com/index.html)')
+            sys.exit(1)
+    else:
         print('[!]\tThe following arguments are required: -d/--destination')
-        sys.exit()
-
+        sys.exit(1)
 
     print('''
     ----------------------------------
@@ -570,7 +583,6 @@ if __name__ == '__main__':
     result  = int(result.strip())
     print("\n[+]\tTotal IPs, Networks or User-Agents blocked: %d" % result)
     print("[+]\tRedirect rules file: %s" % WORKINGFILE_NAME)
-
 
     elapsed = time.perf_counter() - start
     print(f"\n{__file__} executed in {elapsed:0.2f} seconds.")

@@ -11,6 +11,8 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 # Import parent class
 from core.base import Base
 
+# Import static data
+from core.support import REWRITE
 
 class HTAccess(Base):
     """
@@ -125,7 +127,11 @@ class HTAccess(Base):
 
                     # Handle one-off rule that points to 'fortinet'
                     if 'http://www.fortinet.com/?' in line:
-                        line = re.sub('http://www.fortinet.com/\? +', '%{REQUEST_SCHEME}://${REDIR_TARGET}\t', line)
+                        line = re.sub('http://www.fortinet.com/\? +', '${REDIR_TARGET}\t', line)
+
+                    # Standardize RewriteRule format across the @curi0usjack htaccess rules and our own defined in support.py
+                    if 'RewriteRule' in line:
+                        line = REWRITE['RULE']
 
                     self.workingfile.write(line + '\n')
 
@@ -143,6 +149,9 @@ class HTAccess(Base):
                                 self.agent_list.append(re.search('"(.+)"', line).group(1))
                             else:
                                 self.agent_list.append(re.search('(\^.+\$)', line).group(1))
+
+                    
+
 
         self.workingfile.write("\t# @curi0usJack IP Count:         %d\n" % count_ip)
         self.workingfile.write("\t# @curi0usJack User Agent Count: %d\n" % count_ua)
