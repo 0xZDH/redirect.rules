@@ -478,3 +478,6 @@
 ^.*WWWOFFLE.*$
 ^.*Xaldon\ WebSpider.*$
 ^.*Zeus.*$
+# Identified via custom testing
+^.*httpx.*$
+^.*l9tcpid.*$

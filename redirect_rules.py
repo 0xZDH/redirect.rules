@@ -33,7 +33,7 @@ except (ModuleNotFoundError, ImportError) as e:
     sys.exit(1)
 
 
-__version__ = '1.2.3'
+__version__ = '1.2.4'
 
 ## Global files
 LOGFILE_NAME     = '/tmp/redirect_logfile'
@@ -195,6 +195,12 @@ if __name__ == '__main__':
     WORKINGFILE.write("\t# put the following statement near the bottom:\n")
     WORKINGFILE.write("\t# \tInclude /etc/apache2/redirect.rules\n")
     WORKINGFILE.write("\t#\n\n")
+
+    # Add a note to the user to keep the protocol used when setting the redirect target
+    WORKINGFILE.write("\t#\n")
+    WORKINGFILE.write("\t# If modifying the 'REDIR_TARGET' value, please ensure to include the protocol\n")
+    WORKINGFILE.write("\t# e.g. https://google.com OR http://my.domain/test.txt\n")
+    WORKINGFILE.write("\t#\n")
 
 
     #> -----------------------------------------------------------------------------

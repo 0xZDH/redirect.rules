@@ -41,7 +41,7 @@ usage: redirect_rules.py [-h] [-d DESTINATION]
                          [--useragent-file USERAGENT_FILE [USERAGENT_FILE ...]]
                          [--verbose]
 
-Dynamically generate redirect.rules file -- v1.2.3
+Dynamically generate redirect.rules file -- v1.2.4
 
 optional arguments:
   -h, --help            show this help message and exit
