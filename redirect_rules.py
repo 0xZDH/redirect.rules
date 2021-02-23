@@ -495,7 +495,7 @@ if __name__ == '__main__':
     WORKINGFILE.write("\n\t# Catch-all redirect\n")
     WORKINGFILE.write("\t# -> Example: Catch anything other than '/example.zip' and redirect\n")
     WORKINGFILE.write("\t# -> Note: This should be the last item in the redirect.rules file as a final catch-all\n\n")
-    WORKINGFILE.write("\t# RewriteRule\t\t\t\t^((?!\\/example\\.zip).)*$\t\t%{REQUEST_SCHEME}://${REDIR_TARGET}\t[L,R=302]\n")
+    WORKINGFILE.write("\t# RewriteRule\t\t\t\t^((?!\\/example\\.zip).)*$\t\t${REDIR_TARGET}\t[L,R=302]\n")
 
     print("\n[+]\tFile/Path redirection and catch-all examples commented at bottom of file.\n")
 
