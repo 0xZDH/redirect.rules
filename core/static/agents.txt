@@ -481,3 +481,6 @@
 # Identified via custom testing
 ^.*httpx.*$
 ^.*l9tcpid.*$
+# Prevent all 'Preview' agents
+# i.e. SkypeUriPreview Preview/0.5 or DropboxPreviewBot/1.0
+^.*Preview.*$
