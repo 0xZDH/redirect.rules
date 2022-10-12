@@ -580,7 +580,7 @@ if __name__ == '__main__':
     # Clean remove list first (this was an issue at one point)
     remove_list = [x for x in remove_list if x.strip() != '']
     for cidr in remove_list:
-        command = "sed -e '/%s/ s/^#*/#/' -i %s" % (cidr, WORKINGFILE_NAME)
+        command = "sed -i -e '/%s/ s/^#*/#/' %s" % (cidr, WORKINGFILE_NAME)
         result  = subprocess.check_output(command, shell=True)
 
     # Use a little more bash for counting conditions created
